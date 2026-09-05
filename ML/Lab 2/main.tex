@@ -1,0 +1,1006 @@
+\documentclass[12pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{newtxtext,newtxmath} % Times-style font
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{float}
+
+\setlength{\textfloatsep}{10pt}
+\setlength{\floatsep}{10pt}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+% Keep entire document at 12 pt
+\AtBeginDocument{
+    \fontsize{12pt}{14pt}\selectfont
+}
+
+\lstdefinestyle{code}{
+    language=Python,
+    basicstyle=\ttfamily\fontsize{12pt}{14pt}\selectfont,
+    breaklines=true,
+    breakatwhitespace=false,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{green!50!black},
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false
+}
+
+\lstdefinestyle{output}{
+    basicstyle=\ttfamily\fontsize{12pt}{14pt}\selectfont,
+    breaklines=true,
+    breakatwhitespace=false,
+    frame=single,
+    numbers=none,
+    backgroundcolor=\color{gray!4},
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false
+}
+
+
+% ------------------------------------------------
+% Header
+% ------------------------------------------------
+
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[L]{Name: Kishan Sahu{\hspace{4cm}}}
+\fancyhead[R]{Enrollment No.: P26DS017{\hspace{3.5cm}}}
+
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headheight}{15pt}
+
+% ------------------------------------------------
+% Code formatting
+% ------------------------------------------------
+
+\lstset{
+    basicstyle=\ttfamily\fontsize{10pt}{12pt}\selectfont,
+    breaklines=true,
+    frame=single,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false
+}
+
+\begin{document}
+
+% ------------------------------------------------
+% TITLE
+% ------------------------------------------------
+
+\begin{center}
+\textbf{Computer Science and Engineering Department, SVNIT, Surat}\\
+\textbf{M.Tech. I -- Semester I}\\
+\textbf{Design and Analysis of Algorithm (CSDS103)}\\
+\textbf{Lab Assignment 1}
+\end{center}
+
+\vspace{0.4cm}
+
+
+\textbf{Problem Statement: 1}
+
+
+Problem – Experimental Analysis of Matrix Algorithms
+
+Problem – Employee Directory
+
+\vspace{0.3cm}
+
+
+\begin{algorithm}[H]
+\caption{CustomCompare}
+\begin{algorithmic}[1]
+\State \textbf{ALGORITHM} CustomCompare($s1, s2$):
+    \State $len1 \gets Length(s1)$
+    \State $len2 \gets Length(s2)$
+    \State $minLen \gets Min(len1, len2)$
+
+    % \Statex
+    \State \textbf{// Primary Tier: Case-insensitive alphabetical comparison}
+    \For{$i \gets 0$ \textbf{TO} $minLen - 1$}
+        \State $c1 \gets ToLower(s1[i])$
+        \State $c2 \gets ToLower(s2[i])$
+        \If{$ASCII(c1) < ASCII(c2)$}
+            \State \Return $-1$
+        \ElsIf{$ASCII(c1) > ASCII(c2)$}
+            \State \Return $1$
+        \EndIf
+    \EndFor
+
+    % \Statex
+    \State \textbf{// Prefix Tier: Shorter prefix precedes longer string}
+    \If{$len1 < len2$}
+        \State \Return $-1$
+    \ElsIf{$len1 > len2$}
+        \State \Return $1$
+    \EndIf
+
+    % \Statex
+    \State \textbf{// Secondary Tier: Deterministic case tie-breaking (lowercase precedes uppercase)}
+    \For{$i \gets 0$ \textbf{TO} $minLen - 1$}
+        \If{$s1[i] \neq s2[i]$}
+            \If{$IsLower(s1[i])$ \textbf{AND} $IsUpper(s2[i])$}
+                \State \Return $-1$
+            \ElsIf{$IsUpper(s1[i])$ \textbf{AND} $IsLower(s2[i])$}
+                \State \Return $1$
+            \ElsIf{$ASCII(s1[i]) < ASCII(s2[i])$}
+                \State \Return $-1$
+            \Else
+                \State \Return $1$
+            \EndIf
+        \EndIf
+    \EndFor
+
+    \State \Return $0$
+\end{algorithmic}
+\end{algorithm}
+
+
+\begin{algorithm}[H]
+\caption{FindDuplicates:}
+\begin{algorithmic}[1]
+
+\State \textbf{ALGORITHM} FindDuplicates($sortedArr$):
+    \State $duplicates \gets$ empty list
+    \State $n \gets Length(sortedArr)$
+    \State $i \gets 0$
+
+    \While{$i < n$}
+        \State $count \gets 1$
+        \While{$i + 1 < n$ \textbf{AND} $CustomCompare(sortedArr[i], sortedArr[i + 1]) = 0$}
+            \State $count \gets count + 1$
+            \State $i \gets i + 1$
+        \EndWhile
+
+        \If{$count > 1$}
+            \State Append $(sortedArr[i], count)$ to $duplicates$
+        \EndIf
+
+        \State $i \gets i + 1$
+    \EndWhile
+
+    \State \Return $duplicates$
+
+\end{algorithmic}
+\end{algorithm}
+
+% \vspace{6cm}
+\textbf{Code:}
+
+\begin{lstlisting}[style=code][H]
+def compare_strings(s1, s2):
+    len1, len2 = len(s1), len(s2)
+    min_len = min(len1, len2)
+
+    for i in range(min_len):
+        c1, c2 = ord(s1[i].lower()), ord(s2[i].lower())
+        if c1 < c2:
+            return -1
+        elif c1 > c2:
+            return 1
+
+    if len1 < len2:
+        return -1
+    elif len1 > len2:
+        return 1
+
+    for i in range(min_len):
+        if s1[i] != s2[i]:
+            if s1[i].islower() and s2[i].isupper():
+                return -1
+            elif s1[i].isupper() and s2[i].islower():
+                return 1
+            elif ord(s1[i]) < ord(s2[i]):
+                return -1
+            else:
+                return 1
+
+    return 0
+
+
+def merge(left, right):
+    result = []
+    i = j = 0
+
+    while i < len(left) and j < len(right):
+        if compare_strings(left[i], right[j]) <= 0:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    result.extend(left[i:])
+    result.extend(right[j:])
+    return result
+
+
+def merge_sort(arr):
+    if len(arr) <= 1:
+        return arr
+
+    mid = len(arr) // 2
+    left = merge_sort(arr[:mid])
+    right = merge_sort(arr[mid:])
+
+    return merge(left, right)
+
+
+def find_duplicates(sorted_arr):
+    duplicates = []
+    n = len(sorted_arr)
+    i = 0
+
+    while i < n:
+        count = 1
+
+        while (i + 1 < n and
+               compare_strings(sorted_arr[i],
+                               sorted_arr[i + 1]) == 0):
+            count += 1
+            i += 1
+
+        if count > 1:
+            duplicates.append((sorted_arr[i], count))
+
+        i += 1
+
+    return duplicates
+
+
+def main():
+    raw_input = input("Enter employee names: ")
+    names = [name.strip() for name in raw_input.split(",")
+             if name.strip()]
+
+    if not names:
+        print("No valid employee names entered.")
+        return
+
+    sorted_names = merge_sort(names)
+    duplicates = find_duplicates(sorted_names)
+
+    print(f"Sorted Names: {', '.join(sorted_names)}")
+
+    if duplicates:
+        print("Duplicate Names:")
+
+        for name, count in duplicates:
+            print(f"'{name}' appears {count} times")
+    else:
+        print("No duplicate names exist.")
+
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+
+\textbf{Output:}
+
+\begin{lstlisting}[style=output]
+Enter employee names: amit, Amit, Rahul, rahul, Neha, Neha
+Sorted Names: amit, Amit, Neha, Neha, rahul, Rahul
+Duplicate Names:
+'Neha' appears 2 times
+\end{lstlisting}
+
+
+\textbf{Analysis:}
+
+The program successfully sorts the employee names using a custom
+case-insensitive lexicographical comparison while using lowercase-before-
+uppercase as the tie-breaking rule. For the given input of 6 employees,
+the sorted order is \texttt{amit, Amit, Neha, Neha, rahul, Rahul}. The
+duplicate detection step identifies \texttt{Neha} as the only distinct
+duplicate, occurring twice. The overall time complexity of the merge sort
+is $O(n\log n)$, while duplicate detection after sorting takes $O(n)$
+time.
+
+\newpage
+\textbf{Problem Statement: 2}
+
+Problem – Locally Balanced Matrix
+
+
+\begin{algorithm}[H]
+\caption{IsLocallyBalanced}
+\begin{algorithmic}[1]
+
+\State \textbf{ALGORITHM} IsLocallyBalanced($A, n$):
+
+\State \textbf{// Matrices of size $n < 3$ have no interior elements where all 4 neighbours exist}
+\If{$n < 3$}
+    \State \Return $(TRUE, NULL, NULL, NULL)$
+\EndIf
+
+\State \textbf{// Check all non-boundary elements ($1 \leq i \leq n-2$, $1 \leq j \leq n-2$)}
+\For{$i \gets 1$ \textbf{TO} $n-2$}
+    \For{$j \gets 1$ \textbf{TO} $n-2$}
+        \State $neighbourSum \gets A[i-1][j] + A[i+1][j] + A[i][j-1] + A[i][j+1]$
+
+        \State \textbf{// Check balance condition}
+        \If{$A[i][j] \neq neighbourSum$}
+            \State \Return $(FALSE, (i,j), A[i][j], neighbourSum)$
+        \EndIf
+    \EndFor
+\EndFor
+
+\State \Return $(TRUE, NULL, NULL, NULL)$
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Code:}
+
+\begin{lstlisting}[style=code]
+def is_locally_balanced(matrix):
+    n = len(matrix)
+    if n < 3:
+        return True, None, None, None
+
+    for i in range(1, n - 1):
+        for j in range(1, n - 1):
+            neighbour_sum = (
+                matrix[i - 1][j] + matrix[i + 1][j]
+                + matrix[i][j - 1] + matrix[i][j + 1]
+            )
+
+            if matrix[i][j] != neighbour_sum:
+                return False, (i, j), matrix[i][j], neighbour_sum
+
+    return True, None, None, None
+
+
+def main():
+    try:
+        n = int(input("Enter matrix size n: ").strip())
+        print(f"Enter {n} rows:")
+        matrix = []
+
+        for _ in range(n):
+            matrix.append(
+                [int(x) for x in input().replace(",", " ").split()]
+            )
+
+        balanced, pos, val, n_sum = is_locally_balanced(matrix)
+
+        if balanced:
+            print("Matrix is locally balanced.")
+        else:
+            r, c = pos
+            print("Matrix is NOT locally balanced.")
+            print(
+                f"First violation at row {r + 1}, column {c + 1}: "
+                f"Element = {val}, Neighbour Sum = {n_sum}"
+            )
+
+    except (ValueError, IndexError) as e:
+        print(f"Invalid input: {e}")
+
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+\textbf{Output:}
+
+\begin{lstlisting}[style=output]
+Enter matrix size n: 3
+Enter 3 rows:
+1 2 3
+5 15 1
+2 7 9
+Matrix is locally balanced.
+\end{lstlisting}
+
+\textbf{Analysis:}
+
+The implemented algorithm correctly determines whether a matrix is locally balanced by examining only its interior elements. Boundary elements are ignored because they do not have all four required orthogonal neighbours. For each interior element, the algorithm calculates the sum of its up, down, left, and right neighbours and compares this sum with the element itself.
+
+The algorithm traverses the matrix in row-major order and immediately stops when it encounters the first violation, reporting its position, value, and neighbour sum. This makes the approach efficient, with a worst-case time complexity of $O(n^2)$ and an auxiliary space complexity of $O(1)$. For matrices with $n < 3$, there are no interior elements, so the matrix is considered locally balanced.
+
+The test cases demonstrate that the algorithm correctly identifies both balanced and unbalanced matrices. Overall, the solution is simple, efficient, and directly implements the given local-balance condition.
+
+\newpage
+
+\textbf{Problem Statement: 3}
+
+Problem – First Unique Employee
+
+\begin{algorithm}[H]
+\caption{FindFirstUniqueBruteForce}
+\begin{algorithmic}[1]
+
+\State \textbf{ALGORITHM} FindFirstUniqueBruteForce($names$):
+
+\State $n \gets Length(names)$
+
+\For{$i \gets 0$ \textbf{TO} $n-1$}
+    \State $isUnique \gets TRUE$
+
+    \For{$j \gets 0$ \textbf{TO} $n-1$}
+        \If{$i \neq j$ \textbf{AND} $names[i] = names[j]$}
+            \State $isUnique \gets FALSE$
+            \State \textbf{BREAK}
+        \EndIf
+    \EndFor
+
+    \If{$isUnique$}
+        \State \Return $names[i]$
+    \EndIf
+\EndFor
+
+\State \Return $NULL$
+
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{FindFirstUniqueHashMap}
+\begin{algorithmic}[1]
+
+\State \textbf{ALGORITHM} FindFirstUniqueHashMap($names$):
+
+\State $freq \gets$ Empty Hash Table
+
+\State \textbf{// Pass 1: Build frequency map}
+\ForAll{$name$ \textbf{IN} $names$}
+    \If{$name \notin freq$}
+        \State $freq[name] \gets 0$
+    \EndIf
+    \State $freq[name] \gets freq[name] + 1$
+\EndFor
+
+\State \textbf{// Pass 2: Find first unique in original order}
+\ForAll{$name$ \textbf{IN} $names$}
+    \If{$freq[name] = 1$}
+        \State \Return $name$
+    \EndIf
+\EndFor
+
+\State \Return $NULL$
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Code:}
+
+\begin{lstlisting}[style=code]
+def find_first_unique_brute_force(names):
+    n = len(names)
+    for i in range(n):
+        is_unique = True
+        for j in range(n):
+            if i != j and names[i] == names[j]:
+                is_unique = False
+                break
+        if is_unique:
+            return names[i]
+    return None
+
+
+def find_first_unique_hash_map(names):
+    freq = {}
+    for name in names:
+        freq[name] = freq.get(name, 0) + 1
+
+    for name in names:
+        if freq[name] == 1:
+            return name
+
+    return None
+
+
+def parse_input(raw_input):
+    if not raw_input:
+        return []
+    return [name.strip() for name in raw_input.split(",") if name.strip()]
+
+
+def main():
+    raw_input = input("Enter employee access sequence: ")
+    names = parse_input(raw_input)
+
+    if not names:
+        print("No valid names entered.")
+        return
+
+    unique_emp = find_first_unique_hash_map(names)
+    if unique_emp is not None:
+        print(f"First Unique Employee: {unique_emp}")
+    else:
+        print("No unique employee found.")
+
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+\textbf{Output:}
+
+\begin{lstlisting}[style=output]
+Enter employee access sequence: kishan, kishan, rahul, neha, rahul, shubham
+First Unique Employee: neha
+\end{lstlisting}
+\newpage
+\textbf{Analysis:}
+
+The problem is solved using two different approaches to identify the first employee whose name occurs exactly once in the access sequence. The brute-force approach performs repeated pairwise comparisons and requires no additional data structure, resulting in $O(1)$ auxiliary space but $O(n^2 \cdot L)$ time in the worst case. In contrast, the hash-map approach first calculates the frequency of each employee and then scans the original sequence to find the first name with frequency one.
+
+The hash-map approach provides significantly better performance for large input sequences, with an average time complexity of $O(n \cdot L)$, at the cost of $O(u \cdot L)$ additional space, where $u$ is the number of distinct names. Therefore, the brute-force method is suitable when memory is highly constrained or the input is small, while the hash-map approach is preferred for large-scale data due to its linear average-time performance.
+
+The test cases confirm that both approaches correctly handle duplicate names, absence of unique employees, all-unique sequences, and cases where the unique employee appears at the end of the sequence.
+
+
+\newpage
+
+\textbf{Problem Statement: 4}
+
+Problem – Stable Matrix
+
+\begin{algorithm}[H]
+\caption{CheckMatrixStability}
+\begin{algorithmic}[1]
+
+\State \textbf{ALGORITHM} CheckMatrixStability($A, n$):
+
+\State \textbf{// Matrices of size $n < 3$ have no interior elements}
+\If{$n < 3$}
+    \State \Return $(TRUE, 0, [\ ], NULL)$
+\EndIf
+
+\State $violatingPositions \gets [\ ]$
+\State $maxDiff \gets -1$
+\State $maxDiffInfo \gets NULL$
+
+\State \textbf{// Traverse all non-boundary elements}
+\For{$i \gets 1$ \textbf{TO} $n-2$}
+    \For{$j \gets 1$ \textbf{TO} $n-2$}
+        \State $neighbourSum \gets A[i-1][j] + A[i+1][j] + A[i][j-1] + A[i][j+1]$
+        \State $diff \gets Abs(A[i][j] - neighbourSum)$
+
+        \If{$diff > 0$}
+            \State Append $(i,j)$ to $violatingPositions$
+
+            \If{$diff > maxDiff$}
+                \State $maxDiff \gets diff$
+                \State $maxDiffInfo \gets ((i,j), A[i][j], neighbourSum, diff)$
+            \EndIf
+        \EndIf
+    \EndFor
+\EndFor
+
+\If{$Length(violatingPositions) = 0$}
+    \State \Return $(TRUE, 0, [\ ], NULL)$
+\Else
+    \State \Return $(FALSE, Length(violatingPositions), violatingPositions, maxDiffInfo)$
+\EndIf
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Code:}
+
+\begin{lstlisting}[style=code]
+def check_matrix_stability(matrix):
+    n = len(matrix)
+    if n < 3:
+        return True, 0, [], None
+
+    violating_positions = []
+    max_diff = -1
+    max_diff_info = None
+
+    for i in range(1, n - 1):
+        for j in range(1, n - 1):
+            neighbour_sum = (matrix[i - 1][j] + matrix[i + 1][j] +
+                             matrix[i][j - 1] + matrix[i][j + 1])
+            diff = abs(matrix[i][j] - neighbour_sum)
+
+            if diff > 0:
+                violating_positions.append((i, j))
+                if diff > max_diff:
+                    max_diff = diff
+                    max_diff_info = ((i, j), matrix[i][j],
+                                     neighbour_sum, diff)
+
+    if not violating_positions:
+        return True, 0, [], None
+
+    return False, len(violating_positions), \
+           violating_positions, max_diff_info
+
+
+def main():
+    try:
+        n = int(input("Enter matrix size n: ").strip())
+        print(f"Enter {n} rows:")
+        matrix = []
+        for _ in range(n):
+            matrix.append(
+                [int(x) for x in input().replace(",", " ").split()]
+            )
+
+        is_stable, count, positions, max_info = \
+            check_matrix_stability(matrix)
+
+        if is_stable:
+            print("Matrix is stable.")
+        else:
+            print("Matrix is NOT stable.")
+            print(f"Total violating elements: {count}")
+            print(f"Violating positions: {positions}")
+
+            if max_info:
+                (r, c), val, n_sum, diff = max_info
+                print(
+                    f"Maximum difference at row {r + 1}, column {c + 1}: "
+                    f"Element = {val}, Neighbour Sum = {n_sum}, "
+                    f"Max |Diff| = {diff}"
+                )
+
+    except (ValueError, IndexError) as e:
+        print(f"Invalid input: {e}")
+
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+\textbf{Output:}
+
+\begin{lstlisting}[style=output]
+Enter matrix size n: 3
+Enter 3 rows:
+1 2 3
+5 15 8
+4 0 5
+Matrix is stable.
+\end{lstlisting}
+
+\textbf{Analysis:}
+
+The stable matrix algorithm checks every interior element of the matrix and compares its value with the sum of its four orthogonal neighbours. Unlike the locally balanced matrix algorithm, this approach does not stop at the first violation. Instead, it records all violating positions and continuously maintains the maximum absolute difference between an element and its neighbour sum.
+
+Since every interior element must be examined to determine the complete set of violations and the maximum difference, the algorithm has a time complexity of $\Theta(n^2)$ in the best, average, and worst cases. No additional matrix is required because the algorithm only reads the input matrix and maintains a few scalar variables. However, storing the violating positions requires $O(k)$ space, where $k$ is the number of violating elements.
+
+The test cases demonstrate that the algorithm correctly identifies stable matrices, counts all violations in unstable matrices, records their positions, and determines the violation with the maximum absolute difference. Thus, the algorithm provides a complete and memory-efficient analysis of matrix stability.
+
+
+\newpage
+
+\textbf{Problem Statement: 5}
+
+
+Problem – Nearly Ordered Employee Directory
+
+\begin{algorithm}[H]
+\caption{AnalyzeNearlyOrderedDirectory}
+\begin{algorithmic}[1]
+
+\State \textbf{ALGORITHM} AnalyzeNearlyOrderedDirectory($names$):
+
+\State $n \gets Length(names)$
+
+\If{$n \leq 1$}
+    \State \Return $(ALREADY\_SORTED, [\ ], NULL)$
+\EndIf
+
+\State $violations \gets [\ ]$
+
+\State \textbf{// Step 1: Detect all adjacent drops in a single linear pass}
+\For{$i \gets 0$ \textbf{TO} $n-2$}
+    \If{$CompareStrings(names[i], names[i+1]) > 0$}
+        \State Append $i$ to $violations$
+    \EndIf
+\EndFor
+
+\If{$Length(violations) = 0$}
+    \State \Return $(ALREADY\_SORTED, [\ ], NULL)$
+\EndIf
+
+\State \textbf{// Step 2: Identify candidate swap positions}
+\If{$Length(violations) = 1$}
+    \State $x \gets violations[0]$
+    \State $y \gets violations[0] + 1$
+\ElsIf{$Length(violations) = 2$}
+    \State $x \gets violations[0]$
+    \State $y \gets violations[1] + 1$
+\Else
+    \State \textbf{// More than 2 drops cannot be resolved by a single swap}
+    \State \Return $(CANNOT\_BE\_SORTED\_BY\_ONE\_SWAP, violations, NULL)$
+\EndIf
+
+\State \textbf{// Step 3: Verify whether swapping names[x] and names[y] makes list sorted}
+\State Swap($names[x], names[y]$)
+\State $isSorted \gets TRUE$
+
+\For{$k \gets 0$ \textbf{TO} $n-2$}
+    \If{$CompareStrings(names[k], names[k+1]) > 0$}
+        \State $isSorted \gets FALSE$
+        \State \textbf{BREAK}
+    \EndIf
+\EndFor
+
+\State Swap($names[x], names[y]$) \Comment{Restore original order}
+
+\If{$isSorted$}
+    \State \Return $(FIXABLE\_BY\_SWAP, violations, (x,y))$
+\Else
+    \State \Return $(CANNOT\_BE\_SORTED\_BY\_ONE\_SWAP, violations, NULL)$
+\EndIf
+
+\end{algorithmic}
+\end{algorithm}
+
+\newpage
+\textbf{Code:}
+
+\begin{lstlisting}[style=code]
+def compare_strings(s1, s2):
+    min_len = min(len(s1), len(s2))
+    for i in range(min_len):
+        c1_low, c2_low = s1[i].lower(), s2[i].lower()
+        if c1_low != c2_low:
+            return -1 if c1_low < c2_low else 1
+
+    if len(s1) != len(s2):
+        return -1 if len(s1) < len(s2) else 1
+
+    for i in range(len(s1)):
+        if s1[i] != s2[i]:
+            if s1[i].islower() and s2[i].isupper():
+                return -1
+            if s1[i].isupper() and s2[i].islower():
+                return 1
+            return -1 if s1[i] < s2[i] else 1
+
+    return 0
+
+
+def analyze_directory_ordering(names):
+    n = len(names)
+    if n <= 1:
+        return "ALREADY_SORTED", [], None, names.copy()
+
+    violations = []
+    for i in range(n - 1):
+        if compare_strings(names[i], names[i + 1]) > 0:
+            violations.append(i)
+
+    if not violations:
+        return "ALREADY_SORTED", [], None, names.copy()
+
+    if len(violations) == 1:
+        x, y = violations[0], violations[0] + 1
+    elif len(violations) == 2:
+        x, y = violations[0], violations[1] + 1
+    else:
+        return "UNFIXABLE_BY_ONE_SWAP", violations, None, None
+
+    names_copy = names.copy()
+    names_copy[x], names_copy[y] = names_copy[y], names_copy[x]
+
+    for k in range(n - 1):
+        if compare_strings(names_copy[k], names_copy[k + 1]) > 0:
+            return "UNFIXABLE_BY_ONE_SWAP", violations, None, None
+
+    return "FIXABLE_BY_SWAP", violations, (x, y), names_copy
+
+
+def parse_input(raw_input):
+    if not raw_input:
+        return []
+    return [name.strip() for name in raw_input.split(",") if name.strip()]
+
+
+def main():
+    raw_input = input("Enter employee names: ")
+    names = parse_input(raw_input)
+
+    if not names:
+        print("No valid names entered.")
+        return
+
+    status, violations, swap_pos, fixed_list = \
+        analyze_directory_ordering(names)
+
+    if status == "ALREADY_SORTED":
+        print("Directory is already sorted.")
+    elif status == "FIXABLE_BY_SWAP":
+        x, y = swap_pos
+        print(
+            f"Directory is NOT sorted. Violations at indices: {violations}"
+        )
+        print(
+            f"Can be sorted by swapping position {x + 1} "
+            f"('{names[x]}') and position {y + 1} ('{names[y]}')."
+        )
+        print(f"Sorted directory: {', '.join(fixed_list)}")
+    else:
+        print(
+            f"Directory is NOT sorted. Violations at indices: {violations}"
+        )
+        print("Cannot be sorted by exchanging only two names.")
+
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+\textbf{Output:}
+\begin{lstlisting}[style=output]
+Enter employee names: amit, neha, karan, rahul, priya
+Directory is NOT sorted. Violations at indices: [1, 3]
+Cannot be sorted by exchanging only two names.
+\end{lstlisting}
+
+\textbf{Analysis:}
+
+The algorithm efficiently analyzes whether an employee directory is already in lexicographical order and, if not, determines whether the ordering can be restored using a single swap. It first performs a linear scan to identify adjacent ordering violations. Based on the number and positions of these violations, it selects candidate elements for swapping and verifies the resulting sequence without sorting the complete directory.
+
+The algorithm requires $O(n \cdot L)$ time, where $n$ is the number of employee names and $L$ is the maximum name length. This is more efficient than sorting the entire directory, which would require $O(n \log n \cdot L)$ time. The auxiliary space complexity is $O(1)$ apart from the small list used to store violation indices.
+
+A single swap can restore the ordering when there is at most two relevant adjacent violations and the selected elements satisfy the required boundary and intermediate ordering conditions. The test cases demonstrate all important scenarios, including an already sorted directory, adjacent and non-adjacent swaps, and cases that cannot be corrected using only one swap.
+
+\newpage
+
+\textbf{Problem Statement: 6}
+
+Problem – Dominant Element
+
+
+\begin{algorithm}[H]
+\caption{FindDominantBoyerMoore}
+\begin{algorithmic}[1]
+
+\State \textbf{ALGORITHM} FindDominantBoyerMoore($A, n$):
+
+\If{$n = 0$}
+    \State \Return $NULL$
+\EndIf
+
+\State \textbf{// Phase 1: Candidate Selection}
+\State $candidate \gets NULL$
+\State $count \gets 0$
+
+\ForAll{$x$ \textbf{IN} $A$}
+    \If{$count = 0$}
+        \State $candidate \gets x$
+        \State $count \gets 1$
+    \ElsIf{$x = candidate$}
+        \State $count \gets count + 1$
+    \Else
+        \State $count \gets count - 1$
+    \EndIf
+\EndFor
+
+\State \textbf{// Phase 2: Mandatory Verification}
+\State $actualCount \gets 0$
+
+\ForAll{$x$ \textbf{IN} $A$}
+    \If{$x = candidate$}
+        \State $actualCount \gets actualCount + 1$
+    \EndIf
+\EndFor
+
+\If{$actualCount > Floor(n/2)$}
+    \State \Return $(candidate, actualCount)$
+\Else
+    \State \Return $NULL$
+\EndIf
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Code:}
+
+\begin{lstlisting}[style=code]
+def find_dominant_brute_force(arr):
+    n = len(arr)
+    threshold = n // 2
+
+    for i in range(n):
+        count = 0
+        for j in range(n):
+            if arr[j] == arr[i]:
+                count += 1
+        if count > threshold:
+            return arr[i], count
+
+    return None
+
+
+def find_dominant_boyer_moore(arr):
+    n = len(arr)
+    if n == 0:
+        return None
+
+    threshold = n // 2
+    candidate = None
+    count = 0
+
+    for num in arr:
+        if count == 0:
+            candidate = num
+            count = 1
+        elif num == candidate:
+            count += 1
+        else:
+            count -= 1
+
+    if candidate is None:
+        return None
+
+    actual_count = 0
+    for num in arr:
+        if num == candidate:
+            actual_count += 1
+
+    if actual_count > threshold:
+        return candidate, actual_count
+
+    return None
+
+
+def parse_input(raw_input):
+    if not raw_input:
+        return []
+    return [int(x) for x in raw_input.replace(",", " ").split()]
+
+
+def main():
+    raw_input = input("Enter integers: ")
+    arr = parse_input(raw_input)
+
+    if not arr:
+        print("No valid integers entered.")
+        return
+
+    result = find_dominant_boyer_moore(arr)
+    if result:
+        elem, count = result
+        print(
+            f"Dominant Element: {elem} "
+            f"(Count: {count}, Threshold: > {len(arr) // 2})"
+        )
+    else:
+        print("No dominant element exists.")
+
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+\begin{lstlisting}[style=output]
+Enter integers: 1,2,3,4,4,4,4,4
+Dominant Element: 4 (Count: 5, Threshold: > 4)
+\end{lstlisting}
+
+\textbf{Analysis: }
+
+The problem determines whether an integer array contains a dominant element whose frequency is strictly greater than half of the array size. Two approaches are considered: repeated counting and the Boyer--Moore Majority Voting Algorithm. The brute-force approach checks the frequency of each element using nested loops, resulting in $O(n^2)$ worst-case time and $O(1)$ auxiliary space.
+
+The Boyer--Moore approach is more efficient. It first identifies a possible majority candidate through pairwise cancellation and then performs a second pass to verify its actual frequency. It requires $\Theta(n)$ time in all cases and $O(1)$ auxiliary space, without modifying the input array. Therefore, it provides an optimal solution when both time and memory efficiency are important.
+
+The test cases confirm that the algorithm correctly handles dominant elements, arrays without a dominant element, identical elements, single-element arrays, and negative integers. Thus, the dominant element can be identified without any additional data structure using the Boyer--Moore algorithm.
+
+
+\end{document}

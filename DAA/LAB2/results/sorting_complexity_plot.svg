@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 580" width="960" height="580" style="background:#ffffff; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;">
+<style>
+  .title { font-size: 20px; font-weight: 700; fill: #1e293b; }
+  .subtitle { font-size: 13px; fill: #64748b; }
+  .axis { stroke: #94a3b8; stroke-width: 1.5; }
+  .grid { stroke: #e2e8f0; stroke-width: 1; stroke-dasharray: 4,4; }
+  .label { font-size: 12px; fill: #475569; }
+  .axis-title { font-size: 14px; font-weight: 600; fill: #334155; }
+  .legend-text { font-size: 12px; fill: #1e293b; }
+</style>
+<text x="95" y="35" class="title">Sorting Algorithms: Input Size vs Execution Time</text>
+<text x="95" y="53" class="subtitle">Problem 2: Bubble Sort vs Selection Sort vs Insertion Sort across Random, Sorted, and Reverse inputs</text>
+<line x1="95" y1="505.00" x2="695.00" y2="505.00" class="grid" />
+<text x="83" y="509.00" text-anchor="end" class="label">0.00 ms</text>
+<line x1="95" y1="432.50" x2="695.00" y2="432.50" class="grid" />
+<text x="83" y="436.50" text-anchor="end" class="label">4.86 ms</text>
+<line x1="95" y1="360.00" x2="695.00" y2="360.00" class="grid" />
+<text x="83" y="364.00" text-anchor="end" class="label">9.72 ms</text>
+<line x1="95" y1="287.50" x2="695.00" y2="287.50" class="grid" />
+<text x="83" y="291.50" text-anchor="end" class="label">14.57 ms</text>
+<line x1="95" y1="215.00" x2="695.00" y2="215.00" class="grid" />
+<text x="83" y="219.00" text-anchor="end" class="label">19.43 ms</text>
+<line x1="95" y1="142.50" x2="695.00" y2="142.50" class="grid" />
+<text x="83" y="146.50" text-anchor="end" class="label">24.29 ms</text>
+<line x1="95" y1="70.00" x2="695.00" y2="70.00" class="grid" />
+<text x="83" y="74.00" text-anchor="end" class="label">29.15 ms</text>
+<line x1="95.00" y1="70" x2="95.00" y2="505" class="grid" />
+<text x="95.00" y="525" text-anchor="middle" class="label">N=50</text>
+<line x1="161.67" y1="70" x2="161.67" y2="505" class="grid" />
+<text x="161.67" y="525" text-anchor="middle" class="label">N=100</text>
+<line x1="295.00" y1="70" x2="295.00" y2="505" class="grid" />
+<text x="295.00" y="525" text-anchor="middle" class="label">N=200</text>
+<line x1="695.00" y1="70" x2="695.00" y2="505" class="grid" />
+<text x="695.00" y="525" text-anchor="middle" class="label">N=500</text>
+<line x1="95" y1="505" x2="695" y2="505" class="axis" />
+<line x1="95" y1="70" x2="95" y2="505" class="axis" />
+<text x="395.00" y="557" text-anchor="middle" class="axis-title">Input Size (Number of Elements, N)</text>
+<text x="25" y="287.50" text-anchor="middle" transform="rotate(-90 25 287.50)" class="axis-title">Execution Time (milliseconds)</text>
+<path d="M 95.00 502.59 L 161.67 497.36 L 295.00 476.77 L 695.00 181.22" fill="none" stroke="#3a86ff" stroke-width="2.5" stroke-dasharray="6,4" />
+<rect x="91.00" y="498.59" width="8" height="8" fill="#3a86ff" stroke="#ffffff" stroke-width="1.5" />
+<rect x="157.67" y="493.36" width="8" height="8" fill="#3a86ff" stroke="#ffffff" stroke-width="1.5" />
+<rect x="291.00" y="472.77" width="8" height="8" fill="#3a86ff" stroke="#ffffff" stroke-width="1.5" />
+<rect x="691.00" y="177.22" width="8" height="8" fill="#3a86ff" stroke="#ffffff" stroke-width="1.5" />
+<line x1="715" y1="75" x2="735" y2="75" stroke="#3a86ff" stroke-width="2.5" stroke-dasharray="6,4" />
+<rect x="721.5" y="71.5" width="7" height="7" fill="#3a86ff" />
+<text x="741" y="79" class="legend-text">Bubble Sort - Random</text>
+<path d="M 95.00 503.41 L 161.67 500.35 L 295.00 485.91 L 695.00 355.67" fill="none" stroke="#2b9348" stroke-width="2.5" stroke-dasharray="6,4" />
+<rect x="91.00" y="499.41" width="8" height="8" fill="#2b9348" stroke="#ffffff" stroke-width="1.5" />
+<rect x="157.67" y="496.35" width="8" height="8" fill="#2b9348" stroke="#ffffff" stroke-width="1.5" />
+<rect x="291.00" y="481.91" width="8" height="8" fill="#2b9348" stroke="#ffffff" stroke-width="1.5" />
+<rect x="691.00" y="351.67" width="8" height="8" fill="#2b9348" stroke="#ffffff" stroke-width="1.5" />
+<line x1="715" y1="99" x2="735" y2="99" stroke="#2b9348" stroke-width="2.5" stroke-dasharray="6,4" />
+<rect x="721.5" y="95.5" width="7" height="7" fill="#2b9348" />
+<text x="741" y="103" class="legend-text">Selection Sort - Random</text>
+<path d="M 95.00 503.77 L 161.67 501.37 L 295.00 484.79 L 695.00 405.69" fill="none" stroke="#ff6000" stroke-width="2.5" stroke-dasharray="6,4" />
+<rect x="91.00" y="499.77" width="8" height="8" fill="#ff6000" stroke="#ffffff" stroke-width="1.5" />
+<rect x="157.67" y="497.37" width="8" height="8" fill="#ff6000" stroke="#ffffff" stroke-width="1.5" />
+<rect x="291.00" y="480.79" width="8" height="8" fill="#ff6000" stroke="#ffffff" stroke-width="1.5" />
+<rect x="691.00" y="401.69" width="8" height="8" fill="#ff6000" stroke="#ffffff" stroke-width="1.5" />
+<line x1="715" y1="123" x2="735" y2="123" stroke="#ff6000" stroke-width="2.5" stroke-dasharray="6,4" />
+<rect x="721.5" y="119.5" width="7" height="7" fill="#ff6000" />
+<text x="741" y="127" class="legend-text">Insertion Sort - Random</text>
+<path d="M 95.00 504.95 L 161.67 504.93 L 295.00 504.72 L 695.00 504.26" fill="none" stroke="#8338ec" stroke-width="2.5" stroke-dasharray="2,2" />
+<polygon points="95.00,499.95 100.00,504.95 95.00,509.95 90.00,504.95" fill="#8338ec" stroke="#ffffff" stroke-width="1.5" />
+<polygon points="161.67,499.93 166.67,504.93 161.67,509.93 156.67,504.93" fill="#8338ec" stroke="#ffffff" stroke-width="1.5" />
+<polygon points="295.00,499.72 300.00,504.72 295.00,509.72 290.00,504.72" fill="#8338ec" stroke="#ffffff" stroke-width="1.5" />
+<polygon points="695.00,499.26 700.00,504.26 695.00,509.26 690.00,504.26" fill="#8338ec" stroke="#ffffff" stroke-width="1.5" />
+<line x1="715" y1="147" x2="735" y2="147" stroke="#8338ec" stroke-width="2.5" stroke-dasharray="2,2" />
+<polygon points="725,143 729,147 725,151 721,147" fill="#8338ec" />
+<text x="741" y="151" class="legend-text">Bubble Sort - Sorted (Best Case)</text>
+<path d="M 95.00 503.56 L 161.67 500.21 L 295.00 484.65 L 695.00 345.20" fill="none" stroke="#80b918" stroke-width="2.5" stroke-dasharray="2,2" />
+<polygon points="95.00,498.56 100.00,503.56 95.00,508.56 90.00,503.56" fill="#80b918" stroke="#ffffff" stroke-width="1.5" />
+<polygon points="161.67,495.21 166.67,500.21 161.67,505.21 156.67,500.21" fill="#80b918" stroke="#ffffff" stroke-width="1.5" />
+<polygon points="295.00,479.65 300.00,484.65 295.00,489.65 290.00,484.65" fill="#80b918" stroke="#ffffff" stroke-width="1.5" />
+<polygon points="695.00,340.20 700.00,345.20 695.00,350.20 690.00,345.20" fill="#80b918" stroke="#ffffff" stroke-width="1.5" />
+<line x1="715" y1="171" x2="735" y2="171" stroke="#80b918" stroke-width="2.5" stroke-dasharray="2,2" />
+<polygon points="725,167 729,171 725,175 721,171" fill="#80b918" />
+<text x="741" y="175" class="legend-text">Selection Sort - Sorted</text>
+<path d="M 95.00 504.93 L 161.67 504.86 L 295.00 504.60 L 695.00 504.03" fill="none" stroke="#ffb703" stroke-width="2.5" stroke-dasharray="2,2" />
+<polygon points="95.00,499.93 100.00,504.93 95.00,509.93 90.00,504.93" fill="#ffb703" stroke="#ffffff" stroke-width="1.5" />
+<polygon points="161.67,499.86 166.67,504.86 161.67,509.86 156.67,504.86" fill="#ffb703" stroke="#ffffff" stroke-width="1.5" />
+<polygon points="295.00,499.60 300.00,504.60 295.00,509.60 290.00,504.60" fill="#ffb703" stroke="#ffffff" stroke-width="1.5" />
+<polygon points="695.00,499.03 700.00,504.03 695.00,509.03 690.00,504.03" fill="#ffb703" stroke="#ffffff" stroke-width="1.5" />
+<line x1="715" y1="195" x2="735" y2="195" stroke="#ffb703" stroke-width="2.5" stroke-dasharray="2,2" />
+<polygon points="725,191 729,195 725,199 721,195" fill="#ffb703" />
+<text x="741" y="199" class="legend-text">Insertion Sort - Sorted (Best Case)</text>
+<path d="M 95.00 502.79 L 161.67 495.90 L 295.00 435.05 L 695.00 126.74" fill="none" stroke="#003049" stroke-width="2.5"  />
+<circle cx="95.00" cy="502.79" r="4.5" fill="#003049" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="161.67" cy="495.90" r="4.5" fill="#003049" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="295.00" cy="435.05" r="4.5" fill="#003049" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="695.00" cy="126.74" r="4.5" fill="#003049" stroke="#ffffff" stroke-width="1.5" />
+<line x1="715" y1="219" x2="735" y2="219" stroke="#003049" stroke-width="2.5"  />
+<circle cx="725" cy="219" r="3.5" fill="#003049" />
+<text x="741" y="223" class="legend-text">Bubble Sort - Reverse (Worst Case)</text>
+<path d="M 95.00 503.91 L 161.67 499.84 L 295.00 474.07 L 695.00 309.47" fill="none" stroke="#007f5f" stroke-width="2.5"  />
+<circle cx="95.00" cy="503.91" r="4.5" fill="#007f5f" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="161.67" cy="499.84" r="4.5" fill="#007f5f" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="295.00" cy="474.07" r="4.5" fill="#007f5f" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="695.00" cy="309.47" r="4.5" fill="#007f5f" stroke="#ffffff" stroke-width="1.5" />
+<line x1="715" y1="243" x2="735" y2="243" stroke="#007f5f" stroke-width="2.5"  />
+<circle cx="725" cy="243" r="3.5" fill="#007f5f" />
+<text x="741" y="247" class="legend-text">Selection Sort - Reverse</text>
+<path d="M 95.00 503.13 L 161.67 496.82 L 295.00 456.52 L 695.00 263.85" fill="none" stroke="#d00000" stroke-width="2.5"  />
+<circle cx="95.00" cy="503.13" r="4.5" fill="#d00000" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="161.67" cy="496.82" r="4.5" fill="#d00000" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="295.00" cy="456.52" r="4.5" fill="#d00000" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="695.00" cy="263.85" r="4.5" fill="#d00000" stroke="#ffffff" stroke-width="1.5" />
+<line x1="715" y1="267" x2="735" y2="267" stroke="#d00000" stroke-width="2.5"  />
+<circle cx="725" cy="267" r="3.5" fill="#d00000" />
+<text x="741" y="271" class="legend-text">Insertion Sort - Reverse (Worst Case)</text>
+</svg>
