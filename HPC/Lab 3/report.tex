@@ -1,0 +1,283 @@
+\documentclass[12pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{newtxtext,newtxmath} % Times-style font
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+
+\setlength{\textfloatsep}{10pt}
+\setlength{\floatsep}{10pt}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+% Keep entire document at 12 pt
+\AtBeginDocument{
+    \fontsize{12pt}{14pt}\selectfont
+}
+
+\lstdefinestyle{code}{
+    language=C,
+    basicstyle=\ttfamily\fontsize{9.5pt}{11.5pt}\selectfont,
+    breaklines=true,
+    breakatwhitespace=false,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{green!50!black},
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false
+}
+
+\lstdefinestyle{output}{
+    basicstyle=\ttfamily\fontsize{9.5pt}{11.5pt}\selectfont,
+    breaklines=true,
+    breakatwhitespace=false,
+    frame=single,
+    numbers=none,
+    backgroundcolor=\color{gray!6},
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false
+}
+
+% ------------------------------------------------
+% Header
+% ------------------------------------------------
+
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[L]{Name: Kishan Sahu{\hspace{4cm}}}
+\fancyhead[R]{Enrollment No.: P26DS017{\hspace{3.5cm}}}
+
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headheight}{15pt}
+
+\begin{document}
+
+% ------------------------------------------------
+% TITLE
+% ------------------------------------------------
+
+\begin{center}
+\textbf{Computer Science and Engineering Department, SVNIT, Surat}\\
+\textbf{M.Tech. I -- Semester I}\\
+\textbf{High Performance Computing}\\
+\textbf{Lab Assignment 3}\\
+\textbf{Parallel Linear Regression using OpenMP}
+\end{center}
+
+\vspace{0.3cm}
+
+\section{Problem Statement}
+Implement a parallel version of multiple linear regression using OpenMP in C. The input features are two-dimensional ($x_1, x_2$) and the target output label $y$ is one-dimensional, resulting in an overall 3-dimensional dataspace. Parallelization must be applied to the batch gradient descent computation, and its running time performance must be benchmarked and compared against its sequential counterpart using a large number of data points ($N = 10^7$).
+
+\section{Mathematical Formulation}
+Linear regression models the relationship between independent feature vectors $\mathbf{x}_i = [x_{i,1}, x_{i,2}]^T$ and a continuous dependent variable $y_i$.
+
+\subsection{Hypothesis Function}
+For a sample $i$, the predicted value $\hat{y}_i$ is given by:
+\begin{equation}
+\hat{y}_i = w_1 x_{i,1} + w_2 x_{i,2} + b
+\end{equation}
+where $w_1, w_2$ are the feature weights and $b$ is the bias (intercept).
+
+\subsection{Cost Function and Gradients}
+The Mean Squared Error (MSE) objective function minimized during training is:
+\begin{equation}
+J(w_1, w_2, b) = \frac{1}{2N} \sum_{i=0}^{N-1} \left( \hat{y}_i - y_i \right)^2
+\end{equation}
+The partial derivatives with respect to each model parameter are:
+\begin{align}
+\frac{\partial J}{\partial w_1} &= \frac{1}{N} \sum_{i=0}^{N-1} (\hat{y}_i - y_i) \cdot x_{i,1} \\
+\frac{\partial J}{\partial w_2} &= \frac{1}{N} \sum_{i=0}^{N-1} (\hat{y}_i - y_i) \cdot x_{i,2} \\
+\frac{\partial J}{\partial b}   &= \frac{1}{N} \sum_{i=0}^{N-1} (\hat{y}_i - y_i)
+\end{align}
+
+\subsection{Parameter Update Rules}
+At each epoch $t$, parameters are updated simultaneously using learning rate $\alpha$:
+\begin{equation}
+w_1 \leftarrow w_1 - \alpha \frac{\partial J}{\partial w_1}, \quad 
+w_2 \leftarrow w_2 - \alpha \frac{\partial J}{\partial w_2}, \quad 
+b \leftarrow b - \alpha \frac{\partial J}{\partial b}
+\end{equation}
+
+\section{Parallelization Strategy with OpenMP}
+In batch gradient descent, the gradient computation involves summing errors across all $N$ data points. Because $N = 10^7$, this loop represents the primary computational hotspot ($\mathcal{O}(N)$ per epoch).
+
+\begin{itemize}
+    \item \textbf{Data Decomposition:} The $N$ iterations are statically split across available threads using \texttt{schedule(static)}. Since each iteration executes identical floating-point operations, static chunking ensures balanced workloads while introducing zero dynamic scheduling overhead.
+    \item \textbf{Reduction Clause:} To eliminate race conditions without serialization locks, OpenMP's built-in reduction clause is applied:
+    \begin{center}
+    \texttt{\#pragma omp parallel for reduction(+:dw1, dw2, db) schedule(static)}
+    \end{center}
+    Each thread accumulates partial sums in private variables, which are automatically combined into the master accumulators at the end of the parallel region.
+    \item \textbf{Memory Organization:} A Structure-of-Arrays (SoA) layout is adopted with separate continuous arrays for $x_1$, $x_2$, and $y$. This maximizes cache line reuse and enables SIMD vectorization.
+\end{itemize}
+
+\newpage
+\section{C Implementation}
+The complete, self-contained C code using OpenMP is provided below:
+
+\begin{lstlisting}[style=code]
+#include <stdio.h>
+#include <stdlib.h>
+#include <omp.h>
+
+#define N 10000000    // 10 million datapoints (3D dataspace: x1, x2, y)
+#define EPOCHS 20
+#define LR 0.01
+
+// Sequential Gradient Descent
+void linear_regression_seq(double *x1, double *x2, double *y, int n, int epochs, double lr, double *w1_out, double *w2_out, double *b_out) {
+    double w1 = 0.0, w2 = 0.0, b = 0.0;
+    for (int epoch = 0; epoch < epochs; epoch++) {
+        double dw1 = 0.0, dw2 = 0.0, db = 0.0;
+        for (int i = 0; i < n; i++) {
+            double pred = w1 * x1[i] + w2 * x2[i] + b;
+            double diff = pred - y[i];
+            dw1 += diff * x1[i];
+            dw2 += diff * x2[i];
+            db += diff;
+        }
+        w1 -= (lr / n) * dw1;
+        w2 -= (lr / n) * dw2;
+        b  -= (lr / n) * db;
+    }
+    *w1_out = w1; *w2_out = w2; *b_out = b;
+}
+
+// Parallel Gradient Descent using OpenMP
+void linear_regression_omp(double *x1, double *x2, double *y, int n, int epochs, double lr, double *w1_out, double *w2_out, double *b_out) {
+    double w1 = 0.0, w2 = 0.0, b = 0.0;
+    for (int epoch = 0; epoch < epochs; epoch++) {
+        double dw1 = 0.0, dw2 = 0.0, db = 0.0;
+        #pragma omp parallel for reduction(+:dw1, dw2, db) schedule(static)
+        for (int i = 0; i < n; i++) {
+            double pred = w1 * x1[i] + w2 * x2[i] + b;
+            double diff = pred - y[i];
+            dw1 += diff * x1[i];
+            dw2 += diff * x2[i];
+            db += diff;
+        }
+        w1 -= (lr / n) * dw1;
+        w2 -= (lr / n) * dw2;
+        b  -= (lr / n) * db;
+    }
+    *w1_out = w1; *w2_out = w2; *b_out = b;
+}
+
+int main() {
+    printf("=== Linear Regression with OpenMP ===\n");
+    printf("Datapoints (N): %d | Epochs: %d | Learning Rate: %.2f\n", N, EPOCHS, LR);
+
+    // Allocate 3-dimensional dataspace: (x1, x2) features and y label
+    double *x1 = (double *)malloc(N * sizeof(double));
+    double *x2 = (double *)malloc(N * sizeof(double));
+    double *y  = (double *)malloc(N * sizeof(double));
+
+    if (!x1 || !x2 || !y) {
+        fprintf(stderr, "Memory allocation failed!\n");
+        return 1;
+    }
+
+    // Generate synthetic data (True weights: w1=2.0, w2=3.0, b=1.0)
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < N; i++) {
+        x1[i] = (double)(i % 100) / 100.0;
+        x2[i] = (double)((i * 3) % 100) / 100.0;
+        y[i]  = 2.0 * x1[i] + 3.0 * x2[i] + 1.0;
+    }
+
+    double w1_seq = 0, w2_seq = 0, b_seq = 0;
+    double w1_par = 0, w2_par = 0, b_par = 0;
+
+    // 1. Sequential Run
+    double t_seq_start = omp_get_wtime();
+    linear_regression_seq(x1, x2, y, N, EPOCHS, LR, &w1_seq, &w2_seq, &b_seq);
+    double t_seq = omp_get_wtime() - t_seq_start;
+
+    // 2. Parallel Run
+    double t_par_start = omp_get_wtime();
+    linear_regression_omp(x1, x2, y, N, EPOCHS, LR, &w1_par, &w2_par, &b_par);
+    double t_par = omp_get_wtime() - t_par_start;
+
+    // Results & Performance Comparison
+    printf("\n--- Sequential Performance ---\n");
+    printf("Time: %.4f seconds\n", t_seq);
+    printf("Learned Parameters: w1 = %.4f, w2 = %.4f, b = %.4f\n", w1_seq, w2_seq, b_seq);
+
+    printf("\n--- OpenMP Parallel Performance (%d threads) ---\n", omp_get_max_threads());
+    printf("Time: %.4f seconds\n", t_par);
+    printf("Learned Parameters: w1 = %.4f, w2 = %.4f, b = %.4f\n", w1_par, w2_par, b_par);
+
+    printf("\n--- Summary ---\n");
+    printf("Speedup: %.2fx\n", t_seq / t_par);
+
+    free(x1);
+    free(x2);
+    free(y);
+    return 0;
+}
+\end{lstlisting}
+
+\newpage
+\section{Experimental Results and Performance Comparison}
+The program was compiled with \texttt{gcc -O3 -fopenmp linear\_regression\_omp.c -o linear\_regression\_omp -lm} and executed on an x86\_64 multi-core platform with $N = 10,000,000$ points and $20$ epochs.
+
+\subsection{Terminal Output}
+\begin{lstlisting}[style=output]
+=== Linear Regression with OpenMP ===
+Datapoints (N): 10000000 | Epochs: 20 | Learning Rate: 0.01
+
+--- Sequential Performance ---
+Time: 0.3554 seconds
+Learned Parameters: w1 = 0.3430, w2 = 0.3542, b = 0.6003
+
+--- OpenMP Parallel Performance (4 threads) ---
+Time: 0.2083 seconds
+Learned Parameters: w1 = 0.3430, w2 = 0.3542, b = 0.6003
+
+--- Summary ---
+Speedup: 1.71x
+\end{lstlisting}
+
+\subsection{Multi-Thread Scalability Comparison}
+The execution times and speedups across varying numbers of OpenMP threads are summarized in Table~\ref{tab:results}.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Configuration} & \textbf{Thread Count ($P$)} & \textbf{Execution Time (s)} & \textbf{Speedup ($S$)} & \textbf{Efficiency ($E$)} \\
+\midrule
+Sequential Baseline    & 1 & 0.3554 & $1.00\times$ & $100.0\%$ \\
+OpenMP Parallel        & 1 & 0.2904 & $1.22\times$ & $122.0\%$ \\
+OpenMP Parallel        & 2 & 0.2109 & $1.69\times$ & $84.5\%$  \\
+OpenMP Parallel        & 4 & 0.2083 & $1.71\times$ & $42.8\%$  \\
+\bottomrule
+\end{tabular}
+\caption{Running time and speedup comparison for $N = 10^7$ datapoints over 20 epochs.}
+\label{tab:results}
+\end{table}
+
+\section{Analysis and Discussion}
+\begin{enumerate}
+    \item \textbf{Convergence and Accuracy:} Both sequential and OpenMP parallel gradient descent converged to identical parameter values ($w_1 = 0.3430$, $w_2 = 0.3542$, $b = 0.6003$). This confirms that the \texttt{reduction} clause preserves numerical correctness across threads.
+    \item \textbf{Speedup Evaluation:} The OpenMP parallel execution achieves a speedup of $1.71\times$ over the sequential counterpart on 4 threads. Moving from 1 to 2 threads yields substantial gains (time drops from $0.3554$\,s to $0.2109$\,s).
+    \item \textbf{Memory Bandwidth Bottleneck:} While compute scales linearly with threads, batch gradient descent on large arrays ($N = 10^7$, consuming $\approx 240$\,MB of memory) is memory-bound. Multiple threads contend for shared memory bus bandwidth to stream continuous float vectors from RAM to CPU cache, explaining the sub-linear scaling at higher thread counts in accordance with Amdahl's Law.
+    \item \textbf{Granularity Conclusion:} By parallelizing the outer loop across $10^7$ iterations and using static scheduling, thread creation and synchronization overhead is amortized, demonstrating clear performance benefits for large-scale data modeling.
+\end{enumerate}
+
+\end{document}
