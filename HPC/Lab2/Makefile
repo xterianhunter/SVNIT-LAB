@@ -1,19 +1,19 @@
-CC ?= gcc
-CFLAGS ?= -fopenmp -O3 -Wall -Wextra -std=c11
-LDFLAGS ?= -fopenmp -lm
+CC = gcc
+CFLAGS = -fopenmp -O2 -Wall
+TARGETS = race_condition critical_section matrix_mult
 
-TARGET = linear_regression
-SRC = linear_regression.c
+all: $(TARGETS)
 
-all: $(TARGET)
+race_condition: race_condition.c
+	$(CC) $(CFLAGS) -o $@ $<
 
-$(TARGET): $(SRC)
-	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+critical_section: critical_section.c
+	$(CC) $(CFLAGS) -o $@ $<
 
-run: $(TARGET)
-	./$(TARGET)
+matrix_mult: matrix_mult.c
+	$(CC) $(CFLAGS) -o $@ $<
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGETS)
 
-.PHONY: all run clean
+.PHONY: all clean
