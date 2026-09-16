@@ -1,10 +1,11 @@
 LABS:
 
-	[x] CVIP 1 - Thursday
+	[x] CVIP 1 - Thursday 
 	[ ] ML 2 - Friday
 	[x] DAA 1 2 - Tuesday
 
 Tutorial:
 
-	[ ] MFDS 3 4 - Next Friday
+	[ ] MFDS 5 6 - Next Friday
+
 
