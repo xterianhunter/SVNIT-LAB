@@ -1,21 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# -------------------------------------------------------------
-# CVIP Lab: Investigation of Illumination vs. Distance & Area
-# -------------------------------------------------------------
-# Physics / Radiometry Principles:
-# 1. Inverse Square Law: 
-#    Illuminance / Irradiance (E) = I / d^2  [Watts/m^2 or Lux]
-#    - E is independent of receiver surface area (flux density per m^2)
-#    - E drops inversely with the square of distance (1/d^2)
-#
-# 2. Total Received Radiant Flux / Power (Phi):
-#    Phi = E * A = (I * A) / d^2  [Watts or Lumens]
-#    - Phi is directly proportional to surface area (A)
-#    - Phi is inversely proportional to square of distance (d^2)
-# -------------------------------------------------------------
-
 def run_illumination_experiments():
     # Source Radiant Intensity (in Watts/sr or Candela)
     I = 100.0  
