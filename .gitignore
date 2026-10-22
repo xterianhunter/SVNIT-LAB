@@ -1,0 +1,5 @@
+.venv/
+.agent/
+*/.git/
+*.apk
+*/*.apk

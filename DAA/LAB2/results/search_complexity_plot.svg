@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 550" width="900" height="550" style="background:#ffffff; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;">
+<style>
+  .title { font-size: 20px; font-weight: 700; fill: #1e293b; }
+  .subtitle { font-size: 13px; fill: #64748b; }
+  .axis { stroke: #94a3b8; stroke-width: 1.5; }
+  .grid { stroke: #e2e8f0; stroke-width: 1; stroke-dasharray: 4,4; }
+  .label { font-size: 12px; fill: #475569; }
+  .axis-title { font-size: 14px; font-weight: 600; fill: #334155; }
+  .legend-text { font-size: 12px; fill: #1e293b; }
+</style>
+<text x="90" y="35" class="title">Searching Algorithms: Input Size vs Execution Time</text>
+<text x="90" y="53" class="subtitle">Problem 1: Linear Search vs Binary Search across positional test cases</text>
+<line x1="90" y1="480.0" x2="670" y2="480.0" class="grid" />
+<text x="78" y="484.0" text-anchor="end" class="label">0 ns</text>
+<line x1="90" y1="411.66666666666663" x2="670" y2="411.66666666666663" class="grid" />
+<text x="78" y="415.66666666666663" text-anchor="end" class="label">1512 ns</text>
+<line x1="90" y1="343.3333333333333" x2="670" y2="343.3333333333333" class="grid" />
+<text x="78" y="347.3333333333333" text-anchor="end" class="label">3025 ns</text>
+<line x1="90" y1="275.0" x2="670" y2="275.0" class="grid" />
+<text x="78" y="279.0" text-anchor="end" class="label">4537 ns</text>
+<line x1="90" y1="206.66666666666663" x2="670" y2="206.66666666666663" class="grid" />
+<text x="78" y="210.66666666666663" text-anchor="end" class="label">6050 ns</text>
+<line x1="90" y1="138.33333333333331" x2="670" y2="138.33333333333331" class="grid" />
+<text x="78" y="142.33333333333331" text-anchor="end" class="label">7562 ns</text>
+<line x1="90" y1="70.0" x2="670" y2="70.0" class="grid" />
+<text x="78" y="74.0" text-anchor="end" class="label">9074 ns</text>
+<line x1="90.0" y1="70" x2="90.0" y2="480" class="grid" />
+<text x="90.0" y="500" text-anchor="middle" class="label">N=10</text>
+<line x1="212.10526315789474" y1="70" x2="212.10526315789474" y2="480" class="grid" />
+<text x="212.10526315789474" y="500" text-anchor="middle" class="label">N=50</text>
+<line x1="364.7368421052631" y1="70" x2="364.7368421052631" y2="480" class="grid" />
+<text x="364.7368421052631" y="500" text-anchor="middle" class="label">N=100</text>
+<line x1="670.0" y1="70" x2="670.0" y2="480" class="grid" />
+<text x="670.0" y="500" text-anchor="middle" class="label">N=200</text>
+<line x1="90" y1="480" x2="670" y2="480" class="axis" />
+<line x1="90" y1="70" x2="90" y2="480" class="axis" />
+<text x="380.0" y="528" text-anchor="middle" class="axis-title">Input Size (Number of Elements, N)</text>
+<text x="25" y="275.0" text-anchor="middle" transform="rotate(-90 25 275.0)" class="axis-title">Execution Time (nanoseconds)</text>
+<path d="M 90.00 467.57 L 212.11 470.80 L 364.74 470.84 L 670.00 470.55" fill="none" stroke="#fcbf49" stroke-width="2.5" stroke-dasharray="2,2" />
+<circle cx="90.00" cy="467.57" r="4.5" fill="#fcbf49" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="212.11" cy="470.80" r="4.5" fill="#fcbf49" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="364.74" cy="470.84" r="4.5" fill="#fcbf49" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="670.00" cy="470.55" r="4.5" fill="#fcbf49" stroke="#ffffff" stroke-width="1.5" />
+<line x1="695" y1="80" x2="715" y2="80" stroke="#fcbf49" stroke-width="2.5" stroke-dasharray="2,2" />
+<circle cx="705" cy="80" r="3.5" fill="#fcbf49" />
+<text x="723" y="84" class="legend-text">Linear Search - Beginning (Best Case)</text>
+<path d="M 90.00 453.34 L 212.11 418.41 L 364.74 399.93 L 670.00 328.70" fill="none" stroke="#f77f00" stroke-width="2.5"  />
+<circle cx="90.00" cy="453.34" r="4.5" fill="#f77f00" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="212.11" cy="418.41" r="4.5" fill="#f77f00" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="364.74" cy="399.93" r="4.5" fill="#f77f00" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="670.00" cy="328.70" r="4.5" fill="#f77f00" stroke="#ffffff" stroke-width="1.5" />
+<line x1="695" y1="104" x2="715" y2="104" stroke="#f77f00" stroke-width="2.5"  />
+<circle cx="705" cy="104" r="3.5" fill="#f77f00" />
+<text x="723" y="108" class="legend-text">Linear Search - Middle</text>
+<path d="M 90.00 453.90 L 212.11 390.81 L 364.74 318.69 L 670.00 123.48" fill="none" stroke="#e63946" stroke-width="2.5"  />
+<circle cx="90.00" cy="453.90" r="4.5" fill="#e63946" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="212.11" cy="390.81" r="4.5" fill="#e63946" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="364.74" cy="318.69" r="4.5" fill="#e63946" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="670.00" cy="123.48" r="4.5" fill="#e63946" stroke="#ffffff" stroke-width="1.5" />
+<line x1="695" y1="128" x2="715" y2="128" stroke="#e63946" stroke-width="2.5"  />
+<circle cx="705" cy="128" r="3.5" fill="#e63946" />
+<text x="723" y="132" class="legend-text">Linear Search - End (Worst Case)</text>
+<path d="M 90.00 454.94 L 212.11 396.06 L 364.74 326.29 L 670.00 140.20" fill="none" stroke="#d62828" stroke-width="2.5" stroke-dasharray="6,4" />
+<circle cx="90.00" cy="454.94" r="4.5" fill="#d62828" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="212.11" cy="396.06" r="4.5" fill="#d62828" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="364.74" cy="326.29" r="4.5" fill="#d62828" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="670.00" cy="140.20" r="4.5" fill="#d62828" stroke="#ffffff" stroke-width="1.5" />
+<line x1="695" y1="152" x2="715" y2="152" stroke="#d62828" stroke-width="2.5" stroke-dasharray="6,4" />
+<circle cx="705" cy="152" r="3.5" fill="#d62828" />
+<text x="723" y="156" class="legend-text">Linear Search - Absent</text>
+<path d="M 90.00 460.90 L 212.11 454.19 L 364.74 450.22 L 670.00 444.48" fill="none" stroke="#52b788" stroke-width="2.5" stroke-dasharray="2,2" />
+<circle cx="90.00" cy="460.90" r="4.5" fill="#52b788" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="212.11" cy="454.19" r="4.5" fill="#52b788" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="364.74" cy="450.22" r="4.5" fill="#52b788" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="670.00" cy="444.48" r="4.5" fill="#52b788" stroke="#ffffff" stroke-width="1.5" />
+<line x1="695" y1="176" x2="715" y2="176" stroke="#52b788" stroke-width="2.5" stroke-dasharray="2,2" />
+<circle cx="705" cy="176" r="3.5" fill="#52b788" />
+<text x="723" y="180" class="legend-text">Binary Search - Beginning</text>
+<path d="M 90.00 462.84 L 212.11 452.80 L 364.74 450.01 L 670.00 443.22" fill="none" stroke="#2a9d8f" stroke-width="2.5"  />
+<circle cx="90.00" cy="462.84" r="4.5" fill="#2a9d8f" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="212.11" cy="452.80" r="4.5" fill="#2a9d8f" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="364.74" cy="450.01" r="4.5" fill="#2a9d8f" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="670.00" cy="443.22" r="4.5" fill="#2a9d8f" stroke="#ffffff" stroke-width="1.5" />
+<line x1="695" y1="200" x2="715" y2="200" stroke="#2a9d8f" stroke-width="2.5"  />
+<circle cx="705" cy="200" r="3.5" fill="#2a9d8f" />
+<text x="723" y="204" class="legend-text">Binary Search - Middle (Best Case)</text>
+<path d="M 90.00 453.87 L 212.11 449.13 L 364.74 445.10 L 670.00 429.67" fill="none" stroke="#457b9d" stroke-width="2.5" stroke-dasharray="6,4" />
+<circle cx="90.00" cy="453.87" r="4.5" fill="#457b9d" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="212.11" cy="449.13" r="4.5" fill="#457b9d" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="364.74" cy="445.10" r="4.5" fill="#457b9d" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="670.00" cy="429.67" r="4.5" fill="#457b9d" stroke="#ffffff" stroke-width="1.5" />
+<line x1="695" y1="224" x2="715" y2="224" stroke="#457b9d" stroke-width="2.5" stroke-dasharray="6,4" />
+<circle cx="705" cy="224" r="3.5" fill="#457b9d" />
+<text x="723" y="228" class="legend-text">Binary Search - End</text>
+<path d="M 90.00 453.60 L 212.11 448.03 L 364.74 443.93 L 670.00 436.39" fill="none" stroke="#1d3557" stroke-width="2.5"  />
+<circle cx="90.00" cy="453.60" r="4.5" fill="#1d3557" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="212.11" cy="448.03" r="4.5" fill="#1d3557" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="364.74" cy="443.93" r="4.5" fill="#1d3557" stroke="#ffffff" stroke-width="1.5" />
+<circle cx="670.00" cy="436.39" r="4.5" fill="#1d3557" stroke="#ffffff" stroke-width="1.5" />
+<line x1="695" y1="248" x2="715" y2="248" stroke="#1d3557" stroke-width="2.5"  />
+<circle cx="705" cy="248" r="3.5" fill="#1d3557" />
+<text x="723" y="252" class="legend-text">Binary Search - Absent (Worst Case)</text>
+</svg>

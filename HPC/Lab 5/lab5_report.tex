@@ -1,0 +1,484 @@
+\documentclass[12pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{newtxtext,newtxmath} % Times-style font
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+
+\setlength{\textfloatsep}{10pt}
+\setlength{\floatsep}{10pt}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+% Keep entire document at 12 pt
+\AtBeginDocument{
+    \fontsize{12pt}{14pt}\selectfont
+}
+
+\lstdefinestyle{code}{
+    language=C,
+    basicstyle=\ttfamily\fontsize{8.5pt}{10.5pt}\selectfont,
+    breaklines=true,
+    breakatwhitespace=false,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{green!50!black},
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false
+}
+
+\lstdefinestyle{output}{
+    basicstyle=\ttfamily\fontsize{8.5pt}{10.5pt}\selectfont,
+    breaklines=true,
+    breakatwhitespace=false,
+    frame=single,
+    numbers=none,
+    backgroundcolor=\color{gray!6},
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false
+}
+
+% ------------------------------------------------
+% Header
+% ------------------------------------------------
+
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[L]{Name: Kishan Sahu{\hspace{4cm}}}
+\fancyhead[R]{Enrollment No.: P26DS017}
+
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headheight}{15pt}
+
+\begin{document}
+
+% ------------------------------------------------
+% TITLE
+% ------------------------------------------------
+
+\begin{center}
+\textbf{Computer Science and Engineering Department, SVNIT, Surat}\\
+\textbf{M.Tech. I -- Semester I}\\
+\textbf{High Performance Computing (CSDS125)}\\
+\textbf{Lab Assignment 5}\\
+\textbf{Parallel Genetic Algorithm and Particle Swarm Optimization for Distributed Task Allocation using OpenMP}
+\end{center}
+\vspace{-4pt}
+\hrule
+\vspace{6pt}
+
+\section{Problem Statement}
+In distributed computing systems, the \textbf{Task Allocation Problem (TAP)} involves assigning $M$ cooperating tasks onto $P$ processing nodes ($P \ll M$) in a manner that minimizes total system cost. The cost model comprises two components:
+\begin{enumerate}
+    \item \textbf{Execution Cost ($X$)}: The cost incurred by executing task $i$ on processor node $p$.
+    \item \textbf{Inter-task Communication Cost ($C$)}: The cost incurred by communication between tasks $i$ and $j$. This penalty is incurred \textbf{only when interacting tasks are placed on distinct processors}.
+\end{enumerate}
+
+Formally, let assignment vector $A = [A_0, A_1, \dots, A_{M-1}]$ where $A_i \in \{0, 1, \dots, P-1\}$ represents the processor index assigned to task $i$. The total cost function is:
+\begin{equation}
+\text{Total Cost} = \sum_{i=0}^{M-1} X_{i, A_i} + \sum_{i=0}^{M-1} \sum_{j=i+1}^{M-1} C_{i, j} \cdot \left[ A_i \neq A_j \right]
+\end{equation}
+where $[A_i \neq A_j]$ is an indicator variable returning $1$ if task $i$ and task $j$ are mapped to different nodes, and $0$ if co-located on the same node.
+
+Because the solution space comprises $P^M$ possible combinations, the problem is NP-hard. We implement and evaluate two parallel metaheuristic search algorithms accelerated with OpenMP: \textbf{Parallel Genetic Algorithm (P-GA)} and \textbf{Parallel Particle Swarm Optimization (P-PSO)}.
+
+\section{Verification of Sample Topology}
+To validate the cost evaluation logic, we model the standard sample topology ($M = 6$ tasks, $P = 2$ nodes) provided in the assignment specification:
+
+\subsection{Matrix Definitions}
+\begin{itemize}
+    \item \textbf{Inter-task Communication Matrix $C$ ($6 \times 6$)}:
+    \begin{equation*}
+    C = \begin{bmatrix}
+    0 & 6 & 4 & 0 & 0 & 12 \\
+    6 & 0 & 8 & 12 & 3 & 0 \\
+    4 & 8 & 0 & 0 & 11 & 0 \\
+    0 & 12 & 0 & 0 & 5 & 0 \\
+    0 & 3 & 11 & 5 & 0 & 0 \\
+    12 & 0 & 0 & 0 & 0 & 0
+    \end{bmatrix}
+    \end{equation*}
+
+    \item \textbf{Execution Cost Matrix $X$ ($6 \times 2$)}:
+    \begin{equation*}
+    X = \begin{bmatrix}
+    t_1: & 5 & 10 \\
+    t_2: & 2 & \infty \\
+    t_3: & 4 & 4 \\
+    t_4: & 6 & 3 \\
+    t_5: & 5 & 2 \\
+    t_6: & \infty & 4
+    \end{bmatrix}
+    \end{equation*}
+\end{itemize}
+
+\subsection{Cost Calculations}
+\begin{enumerate}
+    \item \textbf{Serial Assignment} ($t_1, t_2, t_3 \to n_1$; $t_4, t_5, t_6 \to n_2$):
+    \begin{align*}
+    \text{Execution Cost } (x) &= x_{11} + x_{21} + x_{31} + x_{42} + x_{52} + x_{62} = 5 + 2 + 4 + 3 + 2 + 4 = 20 \\
+    \text{Communication Cost } (c) &= c_{14} + c_{15} + c_{16} + c_{24} + c_{25} + c_{26} + c_{34} + c_{35} + c_{36} \\
+    &= 0 + 0 + 12 + 12 + 3 + 0 + 0 + 11 + 0 = 38 \\
+    \textbf{Total Cost} &= 20 + 38 = \mathbf{58}
+    \end{align*}
+
+    \item \textbf{Optimal Assignment} ($t_1, t_2, t_3, t_4, t_5 \to n_1$; $t_6 \to n_2$):
+    \begin{align*}
+    \text{Execution Cost } (x) &= x_{11} + x_{21} + x_{31} + x_{41} + x_{51} + x_{62} = 5 + 2 + 4 + 6 + 5 + 4 = 26 \\
+    \text{Communication Cost } (c) &= c_{16} + c_{26} + c_{36} + c_{46} + c_{56} = 12 + 0 + 0 + 0 + 0 = 12 \\
+    \textbf{Total Cost} &= 26 + 12 = \mathbf{38}
+    \end{align*}
+\end{enumerate}
+
+Both theoretical calculations were incorporated as automated verification checks in the C test suite, confirming exact fidelity.
+
+\section{Parallelization Strategy using OpenMP}
+The dominant computational bottleneck in both metaheuristics is the evaluation of candidate allocations, which requires $O(M^2)$ pairwise communication penalty checks. When repeated for hundreds of individuals over hundreds of iterations, this evaluation dominates runtime.
+\begin{itemize}
+    \item \textbf{Genetic Algorithm Parallelization}:
+    \begin{itemize}
+        \item Candidate chromosomes are mapped across threads using a persistent \texttt{\#pragma omp parallel} region.
+        \item In each generation, tournament selection, crossover, and mutation are computed in parallel across the population with \texttt{\#pragma omp for schedule(static)}.
+        \item Population fitness evaluations are computed concurrently with zero thread fork/join overhead.
+        \item A thread-safe Linear Congruential Generator (LCG) with per-thread seeds prevents global lock contention.
+    \end{itemize}
+    \item \textbf{Particle Swarm Optimization Parallelization}:
+    \begin{itemize}
+        \item Each particle maintains a position vector (processor mapping) and velocity vector.
+        \item Velocity and position updates, boundary clamping, and $O(M^2)$ fitness evaluations are executed concurrently using \texttt{\#pragma omp for schedule(static)}.
+        \item Global best ($gbest$) updates across the swarm are coordinated via thread-safe master synchronizations.
+    \end{itemize}
+\end{itemize}
+
+\section{C Implementation Code}
+The following is the self-contained C implementation (\texttt{task\_alloc.c}):
+
+\begin{lstlisting}[style=code]
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <math.h>
+#include <omp.h>
+#include <string.h>
+
+#define INF 999999
+#define GA_POP_SIZE 120
+#define GA_GENERATIONS 200
+#define GA_MUTATION_RATE 0.05
+#define GA_TOURNAMENT_SIZE 3
+
+#define PSO_SWARM_SIZE 120
+#define PSO_ITERATIONS 200
+#define PSO_W 0.7
+#define PSO_C1 1.5
+#define PSO_C2 1.5
+#define V_MAX 3.0
+
+typedef struct {
+    int M, P;
+    int *exec_cost; // M x P matrix
+    int *comm_cost; // M x M matrix
+} Problem;
+
+typedef struct {
+    long long best_cost;
+    int *best_assignment;
+    double elapsed_time;
+} Result;
+
+// Cost calculation function
+long long calculate_cost(const int assignment[], const Problem *prob) {
+    long long exec = 0, comm = 0;
+    int M = prob->M, P = prob->P;
+
+    for (int i = 0; i < M; i++)
+        exec += prob->exec_cost[i * P + assignment[i]];
+
+    for (int i = 0; i < M; i++) {
+        int node_i = assignment[i];
+        for (int j = i + 1; j < M; j++) {
+            if (node_i != assignment[j]) {
+                int c = prob->comm_cost[i * M + j];
+                if (c > 0) comm += c;
+            }
+        }
+    }
+    return exec + comm;
+}
+
+// Fast thread-safe pseudo-random number generator
+static inline unsigned int lcg_rand(unsigned int *seed) {
+    *seed = *seed * 1103515245 + 12345;
+    return (*seed / 65536) % 32768;
+}
+
+static inline double lcg_rand_double(unsigned int *seed) {
+    return (double)lcg_rand(seed) / 32767.0;
+}
+
+// Parallel Genetic Algorithm with OpenMP
+Result run_ga_parallel(const Problem *prob) {
+    int M = prob->M, P = prob->P;
+    int *population = (int*)malloc(GA_POP_SIZE * M * sizeof(int));
+    int *new_population = (int*)malloc(GA_POP_SIZE * M * sizeof(int));
+    long long *fitness = (long long*)malloc(GA_POP_SIZE * sizeof(long long));
+    int *global_best = (int*)malloc(M * sizeof(int));
+    long long global_best_cost = LLONG_MAX;
+
+    double t_start = omp_get_wtime();
+
+    #pragma omp parallel
+    {
+        int tid = omp_get_thread_num();
+        unsigned int seed = 42 + tid * 10007;
+
+        #pragma omp for schedule(static)
+        for (int i = 0; i < GA_POP_SIZE; i++)
+            for (int j = 0; j < M; j++)
+                population[i * M + j] = lcg_rand(&seed) % P;
+
+        #pragma omp for schedule(static)
+        for (int i = 0; i < GA_POP_SIZE; i++)
+            fitness[i] = calculate_cost(&population[i * M], prob);
+
+        #pragma omp single
+        {
+            int best_idx = 0;
+            for (int i = 1; i < GA_POP_SIZE; i++)
+                if (fitness[i] < fitness[best_idx]) best_idx = i;
+            global_best_cost = fitness[best_idx];
+            memcpy(global_best, &population[best_idx * M], M * sizeof(int));
+        }
+
+        for (int gen = 0; gen < GA_GENERATIONS; gen++) {
+            #pragma omp single
+            memcpy(&new_population[0], global_best, M * sizeof(int));
+
+            #pragma omp for schedule(static)
+            for (int i = 1; i < GA_POP_SIZE; i++) {
+                int p1 = lcg_rand(&seed) % GA_POP_SIZE;
+                for (int t = 1; t < GA_TOURNAMENT_SIZE; t++) {
+                    int cand = lcg_rand(&seed) % GA_POP_SIZE;
+                    if (fitness[cand] < fitness[p1]) p1 = cand;
+                }
+                int p2 = lcg_rand(&seed) % GA_POP_SIZE;
+                for (int t = 1; t < GA_TOURNAMENT_SIZE; t++) {
+                    int cand = lcg_rand(&seed) % GA_POP_SIZE;
+                    if (fitness[cand] < fitness[p2]) p2 = cand;
+                }
+
+                int point = lcg_rand(&seed) % M;
+                for (int j = 0; j < M; j++)
+                    new_population[i * M + j] = (j < point) ? population[p1 * M + j] : population[p2 * M + j];
+
+                for (int j = 0; j < M; j++)
+                    if (lcg_rand_double(&seed) < GA_MUTATION_RATE)
+                        new_population[i * M + j] = lcg_rand(&seed) % P;
+            }
+
+            #pragma omp for schedule(static)
+            for (int i = 0; i < GA_POP_SIZE; i++)
+                memcpy(&population[i * M], &new_population[i * M], M * sizeof(int));
+
+            #pragma omp for schedule(static)
+            for (int i = 0; i < GA_POP_SIZE; i++)
+                fitness[i] = calculate_cost(&population[i * M], prob);
+
+            #pragma omp single
+            {
+                for (int i = 0; i < GA_POP_SIZE; i++) {
+                    if (fitness[i] < global_best_cost) {
+                        global_best_cost = fitness[i];
+                        memcpy(global_best, &population[i * M], M * sizeof(int));
+                    }
+                }
+            }
+        }
+    }
+
+    double t_end = omp_get_wtime();
+    free(population); free(new_population); free(fitness);
+
+    Result res;
+    res.best_cost = global_best_cost;
+    res.best_assignment = global_best;
+    res.elapsed_time = t_end - t_start;
+    return res;
+}
+
+// Parallel Particle Swarm Optimization with OpenMP
+Result run_pso_parallel(const Problem *prob) {
+    int M = prob->M, P = prob->P;
+    int *pos = (int*)malloc(PSO_SWARM_SIZE * M * sizeof(int));
+    double *vel = (double*)malloc(PSO_SWARM_SIZE * M * sizeof(double));
+    int *pbest_pos = (int*)malloc(PSO_SWARM_SIZE * M * sizeof(int));
+    long long *pbest_cost = (long long*)malloc(PSO_SWARM_SIZE * sizeof(long long));
+    int *gbest_pos = (int*)malloc(M * sizeof(int));
+    long long gbest_cost = LLONG_MAX;
+
+    double t_start = omp_get_wtime();
+
+    #pragma omp parallel
+    {
+        int tid = omp_get_thread_num();
+        unsigned int seed = 777 + tid * 54321;
+
+        #pragma omp for schedule(static)
+        for (int i = 0; i < PSO_SWARM_SIZE; i++) {
+            for (int j = 0; j < M; j++) {
+                pos[i * M + j] = lcg_rand(&seed) % P;
+                vel[i * M + j] = (lcg_rand_double(&seed) * 2.0 - 1.0) * V_MAX;
+                pbest_pos[i * M + j] = pos[i * M + j];
+            }
+            pbest_cost[i] = calculate_cost(&pos[i * M], prob);
+        }
+
+        #pragma omp single
+        {
+            for (int i = 0; i < PSO_SWARM_SIZE; i++) {
+                if (pbest_cost[i] < gbest_cost) {
+                    gbest_cost = pbest_cost[i];
+                    memcpy(gbest_pos, &pos[i * M], M * sizeof(int));
+                }
+            }
+        }
+
+        for (int iter = 0; iter < PSO_ITERATIONS; iter++) {
+            #pragma omp for schedule(static)
+            for (int i = 0; i < PSO_SWARM_SIZE; i++) {
+                for (int j = 0; j < M; j++) {
+                    double r1 = lcg_rand_double(&seed);
+                    double r2 = lcg_rand_double(&seed);
+
+                    vel[i * M + j] = PSO_W * vel[i * M + j]
+                                   + PSO_C1 * r1 * (pbest_pos[i * M + j] - pos[i * M + j])
+                                   + PSO_C2 * r2 * (gbest_pos[j] - pos[i * M + j]);
+
+                    if (vel[i * M + j] > V_MAX) vel[i * M + j] = V_MAX;
+                    if (vel[i * M + j] < -V_MAX) vel[i * M + j] = -V_MAX;
+
+                    int new_p = (int)round(pos[i * M + j] + vel[i * M + j]);
+                    if (new_p < 0) new_p = 0;
+                    if (new_p >= P) new_p = P - 1;
+                    pos[i * M + j] = new_p;
+                }
+
+                long long current_cost = calculate_cost(&pos[i * M], prob);
+                if (current_cost < pbest_cost[i]) {
+                    pbest_cost[i] = current_cost;
+                    memcpy(&pbest_pos[i * M], &pos[i * M], M * sizeof(int));
+                }
+            }
+
+            #pragma omp single
+            {
+                for (int i = 0; i < PSO_SWARM_SIZE; i++) {
+                    if (pbest_cost[i] < gbest_cost) {
+                        gbest_cost = pbest_cost[i];
+                        memcpy(gbest_pos, &pbest_pos[i * M], M * sizeof(int));
+                    }
+                }
+            }
+        }
+    }
+
+    double t_end = omp_get_wtime();
+    free(pos); free(vel); free(pbest_pos); free(pbest_cost);
+
+    Result res;
+    res.best_cost = gbest_cost;
+    res.best_assignment = gbest_pos;
+    res.elapsed_time = t_end - t_start;
+    return res;
+}
+\end{lstlisting}
+
+\section{Experimental Results and Performance Comparison}
+Testing was conducted on a large problem instance with $M = 250$ tasks and $P = 8$ processors ($P \ll M$), execution costs between $10$ and $100$, and a $15\%$ communication matrix density. The baseline random allocation total cost was $127,049$.
+
+\begin{table}[H]
+\centering
+\caption{Comparative Benchmarking Results ($M = 250$, $P = 8$, 4 OpenMP Threads)}
+\vspace{4pt}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Algorithm} & \textbf{Time (sec)} & \textbf{Speedup} & \textbf{Best Cost} & \textbf{Cost Reduction} \\
+\midrule
+Sequential GA        & 1.7369 s & 1.00$\times$ (base) & 103,939 & 18.19\% \\
+\textbf{Parallel GA (OpenMP)} & \textbf{0.6340 s} & \textbf{2.74$\times$} & \textbf{105,818} & \textbf{16.71\%} \\
+\midrule
+Sequential PSO       & 1.4537 s & 1.00$\times$ (base) & 101,446 & 20.15\% \\
+\textbf{Parallel PSO (OpenMP)} & \textbf{0.6320 s} & \textbf{2.30$\times$} & \textbf{101,587} & \textbf{20.04\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Execution Output}
+\begin{lstlisting}[style=output]
+============================================================
+VERIFICATION: Sample 6-Task, 2-Node Distributed Topology
+============================================================
+Serial Assignment Cost   : Calculated = 58 | Expected = 58 -> PASSED
+Optimal Assignment Cost  : Calculated = 38 | Expected = 38 -> PASSED
+
+============================================================
+TASK ALLOCATION PROBLEM (TAP) BENCHMARK
+Dimensions: M = 250 Tasks, P = 8 Processors (P << M)
+OpenMP Threads Available: 4
+============================================================
+Generating synthetic problem instance (Exec Cost: 10-100, Comm Density: 15%)...
+Random Baseline Allocation Total Cost: 127049
+
+--- Running Genetic Algorithm (Pop: 120, Gens: 200) ---
+Running Sequential GA...
+  Sequential GA Best Cost : 103939 | Time: 1.7369 s
+Running Parallel OpenMP GA (4 threads)...
+  Parallel GA Best Cost   : 105818 | Time: 0.6340 s | Speedup: 2.74x
+
+--- Running Particle Swarm Optimization (Swarm: 120, Iters: 200) ---
+Running Sequential PSO...
+  Sequential PSO Best Cost: 101446 | Time: 1.4537 s
+Running Parallel OpenMP PSO (4 threads)...
+  Parallel PSO Best Cost  : 101587 | Time: 0.6320 s | Speedup: 2.30x
+
+========================================================================================
+Algorithm            | Time (sec)   | Speedup      | Best Cost  | Cost Reduction 
+========================================================================================
+Sequential GA        |     1.7369 s | 1.00x (base) |     103939 |         18.19%
+Parallel GA (OpenMP) |     0.6340 s |        2.74x |     105818 |         16.71%
+Sequential PSO       |     1.4537 s | 1.00x (base) |     101446 |         20.15%
+Parallel PSO (OpenMP) |     0.6320 s |        2.30x |     101587 |         20.04%
+========================================================================================
+
+Sample Task-to-Processor Mapping (First 20 Tasks from Parallel PSO, Total Cost = 101587):
+  Task   1 -> Processor  4
+  Task   2 -> Processor  4
+  Task   3 -> Processor  4
+  Task   4 -> Processor  4
+  Task   5 -> Processor  4
+  Task   6 -> Processor  8
+  Task   7 -> Processor  3
+  Task   8 -> Processor  1
+  Task   9 -> Processor  5
+  Task  10 -> Processor  4
+  ... [230 more tasks mapped]
+\end{lstlisting}
+
+\section{Conclusion}
+The parallel implementations of Genetic Algorithm and Particle Swarm Optimization on OpenMP effectively resolved the computational overhead of $O(M^2)$ cross-node communication evaluations. On 4 cores, Parallel GA achieved a \textbf{2.74$\times$ speedup} and Parallel PSO achieved a \textbf{2.30$\times$ speedup}, while both converged to allocations achieving approximately $17\text{--}20\%$ lower cost than random baseline mappings.
+
+\end{document}

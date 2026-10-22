@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem 3: Matrix Algorithms Experimental Analysis</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-green: #34d399;
+            --accent-orange: #fb923c;
+            --accent-red: #f87171;
+            --border: #334155;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 30px 20px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+        h1 { margin: 0 0 10px 0; font-size: 26px; color: var(--text-main); }
+        p.subtitle { margin: 0; color: var(--text-muted); font-size: 15px; }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: var(--accent-blue);
+        }
+        .svg-container {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-x: auto;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .bg-blue { background: #0284c7; color: #fff; }
+        .bg-green { background: #059669; color: #fff; }
+        .bg-red { background: #dc2626; color: #fff; }
+        .pill {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .pill-quad { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .pill-cube { background: rgba(248, 113, 113, 0.15); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 850px) {
+            .analysis-grid { grid-template-columns: 1fr; }
+        }
+        .analysis-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .analysis-box h3 { margin-top: 0; font-size: 16px; }
+        .box-add h3 { color: var(--accent-blue); }
+        .box-trans h3 { color: var(--accent-green); }
+        .box-mul h3 { color: var(--accent-red); }
+        ul { margin: 0; padding-left: 18px; color: var(--text-muted); line-height: 1.5; font-size: 13.5px; }
+        li strong { color: var(--text-main); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DAA Lab Assignment 2 – Problem 3 Analysis</h1>
+            <p class="subtitle">Experimental and Theoretical Analysis of Matrix Addition, Transpose, and Multiplication (SVNIT M.Tech CSDS103)</p>
+        </header>
+
+        <div class="card">
+            <h2 class="card-title">Execution Time vs Matrix Size Plot</h2>
+            <div class="svg-container">
+                <img src="matrix_complexity_plot.svg" alt="Matrix Complexity Plot" style="max-width:100%; height:auto;">
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">Theoretical vs Experimental Complexity Breakdown</h2>
+            <div class="analysis-grid">
+                <div class="analysis-box box-add">
+                    <h3>Matrix Addition (O(n²))</h3>
+                    <ul>
+                        <li><strong>Scalar Operations:</strong> Exactly $n^2$ additions and assignments.</li>
+                        <li><strong>Scaling Factor:</strong> Doubling dimension (e.g. $50\times50 \to 100\times100$) increases time by $\approx 4\times$.</li>
+                        <li><strong>Observed Latency:</strong> Scales smoothly from ~0.003 ms ($10\times10$) to ~3.5–5 ms ($500\times500$).</li>
+                    </ul>
+                </div>
+                <div class="analysis-box box-trans">
+                    <h3>Matrix Transpose (O(n²))</h3>
+                    <ul>
+                        <li><strong>Scalar Operations:</strong> Exactly $n^2$ element indexing assignments ($T[i][j] = A[j][i]$).</li>
+                        <li><strong>Cache Behavior:</strong> Direct quadratic access pattern with low memory overhead.</li>
+                        <li><strong>Observed Latency:</strong> Executes within ~0.002 ms ($10\times10$) up to ~3.5 ms ($500\times500$).</li>
+                    </ul>
+                </div>
+                <div class="analysis-box box-mul">
+                    <h3>Matrix Multiplication (O(n³))</h3>
+                    <ul>
+                        <li><strong>Scalar Operations:</strong> $n^3$ multiplications and $n^2(n-1)$ additions.</li>
+                        <li><strong>Scaling Factor:</strong> Doubling dimension increases operations by $2^3 = 8\times$. $10\times$ dimension increase yields $1000\times$ latency.</li>
+                        <li><strong>Observed Latency:</strong> Escalates steeply from ~0.007 ms ($10\times10$) to ~1,000–1,200 ms ($500\times500$).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">Detailed Experimental Results Table</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operation</th>
+                            <th>Matrix Size</th>
+                            <th>Complexity</th>
+                            <th>Time (µs)</th>
+                            <th>Time (ms)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+        <tr>
+            <td><span class="badge bg-blue">Matrix Addition</span></td>
+            <td><strong>10x10</strong></td>
+            <td><span class="pill pill-quad">O(n^2)</span></td>
+            <td><code>15.62 µs</code></td>
+            <td><strong>0.0156 ms</strong></td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge bg-green">Matrix Transpose</span></td>
+            <td><strong>10x10</strong></td>
+            <td><span class="pill pill-quad">O(n^2)</span></td>
+            <td><code>7.53 µs</code></td>
+            <td><strong>0.0075 ms</strong></td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge bg-red">Matrix Multiplication</span></td>
+            <td><strong>10x10</strong></td>
+            <td><span class="pill pill-cube">O(n^3)</span></td>
+            <td><code>116.96 µs</code></td>
+            <td><strong>0.1170 ms</strong></td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge bg-blue">Matrix Addition</span></td>
+            <td><strong>50x50</strong></td>
+            <td><span class="pill pill-quad">O(n^2)</span></td>
+            <td><code>196.35 µs</code></td>
+            <td><strong>0.1963 ms</strong></td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge bg-green">Matrix Transpose</span></td>
+            <td><strong>50x50</strong></td>
+            <td><span class="pill pill-quad">O(n^2)</span></td>
+            <td><code>107.70 µs</code></td>
+            <td><strong>0.1077 ms</strong></td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge bg-red">Matrix Multiplication</span></td>
+            <td><strong>50x50</strong></td>
+            <td><span class="pill pill-cube">O(n^3)</span></td>
+            <td><code>9940.84 µs</code></td>
+            <td><strong>9.9408 ms</strong></td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge bg-blue">Matrix Addition</span></td>
+            <td><strong>100x100</strong></td>
+            <td><span class="pill pill-quad">O(n^2)</span></td>
+            <td><code>752.55 µs</code></td>
+            <td><strong>0.7525 ms</strong></td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge bg-green">Matrix Transpose</span></td>
+            <td><strong>100x100</strong></td>
+            <td><span class="pill pill-quad">O(n^2)</span></td>
+            <td><code>421.64 µs</code></td>
+            <td><strong>0.4216 ms</strong></td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge bg-red">Matrix Multiplication</span></td>
+            <td><strong>100x100</strong></td>
+            <td><span class="pill pill-cube">O(n^3)</span></td>
+            <td><code>76734.80 µs</code></td>
+            <td><strong>76.7348 ms</strong></td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge bg-blue">Matrix Addition</span></td>
+            <td><strong>200x200</strong></td>
+            <td><span class="pill pill-quad">O(n^2)</span></td>
+            <td><code>2917.44 µs</code></td>
+            <td><strong>2.9174 ms</strong></td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge bg-green">Matrix Transpose</span></td>
+            <td><strong>200x200</strong></td>
+            <td><span class="pill pill-quad">O(n^2)</span></td>
+            <td><code>1568.24 µs</code></td>
+            <td><strong>1.5682 ms</strong></td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge bg-red">Matrix Multiplication</span></td>
+            <td><strong>200x200</strong></td>
+            <td><span class="pill pill-cube">O(n^3)</span></td>
+            <td><code>790697.13 µs</code></td>
+            <td><strong>790.6971 ms</strong></td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge bg-blue">Matrix Addition</span></td>
+            <td><strong>500x500</strong></td>
+            <td><span class="pill pill-quad">O(n^2)</span></td>
+            <td><code>20004.17 µs</code></td>
+            <td><strong>20.0042 ms</strong></td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge bg-green">Matrix Transpose</span></td>
+            <td><strong>500x500</strong></td>
+            <td><span class="pill pill-quad">O(n^2)</span></td>
+            <td><code>11939.32 µs</code></td>
+            <td><strong>11.9393 ms</strong></td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge bg-red">Matrix Multiplication</span></td>
+            <td><strong>500x500</strong></td>
+            <td><span class="pill pill-cube">O(n^3)</span></td>
+            <td><code>11450039.49 µs</code></td>
+            <td><strong>11450.0395 ms</strong></td>
+        </tr>
+        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

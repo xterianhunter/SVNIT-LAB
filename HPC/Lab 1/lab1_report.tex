@@ -1,0 +1,458 @@
+\documentclass[12pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{newtxtext,newtxmath} % Times-style font
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+
+\setlength{\textfloatsep}{10pt}
+\setlength{\floatsep}{10pt}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+% Keep entire document at 12 pt
+\AtBeginDocument{
+    \fontsize{12pt}{14pt}\selectfont
+}
+
+\lstdefinestyle{code}{
+    language=C,
+    basicstyle=\ttfamily\fontsize{9.5pt}{11.5pt}\selectfont,
+    breaklines=true,
+    breakatwhitespace=false,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{green!50!black},
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false
+}
+
+\lstdefinestyle{output}{
+    basicstyle=\ttfamily\fontsize{9.5pt}{11.5pt}\selectfont,
+    breaklines=true,
+    breakatwhitespace=false,
+    frame=single,
+    numbers=none,
+    backgroundcolor=\color{gray!6},
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false
+}
+
+% ------------------------------------------------
+% Header
+% ------------------------------------------------
+
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[L]{Name: Kishan Sahu{\hspace{4cm}}}
+\fancyhead[R]{Enrollment No.: P26DS017{\hspace{3.5cm}}}
+
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headheight}{15pt}
+
+\begin{document}
+
+% ------------------------------------------------
+% TITLE
+% ------------------------------------------------
+
+\begin{center}
+\textbf{Computer Science and Engineering Department, SVNIT, Surat}\\
+\textbf{M.Tech. I -- Semester I}\\
+\textbf{High Performance Computing (CSDS125)}\\
+\textbf{Lab Assignment 1}\\
+\textbf{Dynamic Memory Allocation: Array Operations, Matrix Multiplication, Vector Dot Product, and Merge Sort}
+\end{center}
+\vspace{-4pt}
+\hrule
+\vspace{8pt}
+
+% ==============================================================================
+% Problem 1: Minimum and Maximum in Array
+% ==============================================================================
+\section*{Problem 1: Minimum and Maximum Element in Array using Dynamic Memory}
+
+\subsection*{1.1 Objective}
+Implement a C program to allocate memory dynamically for an array of size $n$, read the elements from the user, and find the minimum and maximum elements in a single traversal.
+
+\subsection*{1.2 Source Code (\texttt{min\_max.c})}
+\begin{lstlisting}[style=code]
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n;
+    printf("Enter number of elements: ");
+    if (scanf("%d", &n) != 1 || n <= 0) {
+        printf("Invalid size\n");
+        return 1;
+    }
+
+    int *arr = (int *)malloc(n * sizeof(int));
+    if (arr == NULL) {
+        printf("Memory allocation failed\n");
+        return 1;
+    }
+
+    printf("Enter %d elements:\n", n);
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    int min = arr[0];
+    int max = arr[0];
+
+    for (int i = 1; i < n; i++) {
+        if (arr[i] < min) {
+            min = arr[i];
+        }
+        if (arr[i] > max) {
+            max = arr[i];
+        }
+    }
+
+    printf("Minimum element: %d\n", min);
+    printf("Maximum element: %d\n", max);
+
+    free(arr);
+    return 0;
+}
+\end{lstlisting}
+
+\subsection*{1.3 Execution Output}
+\begin{lstlisting}[style=output]
+Enter number of elements: 5
+Enter 5 elements:
+10 -5 30 2 0
+Minimum element: -5
+Maximum element: 30
+\end{lstlisting}
+
+\subsection*{1.4 Analysis}
+\begin{itemize}
+    \item \textbf{Time Complexity:} $\mathcal{O}(n)$. Memory allocation takes $\mathcal{O}(1)$ time. Array population and the subsequent single-pass scan iterate from index $1$ to $n-1$, performing exactly $2(n-1)$ comparisons in the worst case.
+    \item \textbf{Space Complexity:} $\mathcal{O}(n)$ auxiliary space allocated on the heap for storing $n$ integers. The algorithm maintains only $\mathcal{O}(1)$ extra variables (\texttt{min}, \texttt{max}, \texttt{i}, \texttt{n}).
+    \item \textbf{Memory Management:} Explicit heap memory is allocated using \texttt{malloc} and deallocated using \texttt{free(arr)} before program termination, preventing memory leaks.
+\end{itemize}
+
+\vspace{10pt}
+\hrule
+\vspace{10pt}
+
+% ==============================================================================
+% Problem 2: Matrix Multiplication
+% ==============================================================================
+\section*{Problem 2: Matrix Multiplication using Dynamic Memory Allocation}
+
+\subsection*{2.1 Objective}
+Implement matrix multiplication $C = A \times B$ for matrices of arbitrary dimensions ($r_1 \times c_1$ and $r_2 \times c_2$) using dynamically allocated 2D pointer arrays, with dimension compatibility validation ($c_1 = r_2$).
+
+\subsection*{2.2 Source Code (\texttt{matrix\_mult.c})}
+\begin{lstlisting}[style=code]
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int r1, c1, r2, c2;
+
+    printf("Enter rows and columns of Matrix A: ");
+    if (scanf("%d %d", &r1, &c1) != 2 || r1 <= 0 || c1 <= 0) {
+        printf("Invalid dimensions\n");
+        return 1;
+    }
+
+    printf("Enter rows and columns of Matrix B: ");
+    if (scanf("%d %d", &r2, &c2) != 2 || r2 <= 0 || c2 <= 0) {
+        printf("Invalid dimensions\n");
+        return 1;
+    }
+
+    if (c1 != r2) {
+        printf("Multiplication not possible: columns of A must equal rows of B\n");
+        return 1;
+    }
+
+    // Allocate Matrix A
+    int **A = (int **)malloc(r1 * sizeof(int *));
+    for (int i = 0; i < r1; i++) {
+        A[i] = (int *)malloc(c1 * sizeof(int));
+    }
+
+    // Allocate Matrix B
+    int **B = (int **)malloc(r2 * sizeof(int *));
+    for (int i = 0; i < r2; i++) {
+        B[i] = (int *)malloc(c2 * sizeof(int));
+    }
+
+    // Allocate Result Matrix C
+    int **C = (int **)malloc(r1 * sizeof(int *));
+    for (int i = 0; i < r1; i++) {
+        C[i] = (int *)malloc(c2 * sizeof(int));
+    }
+
+    printf("Enter elements of Matrix A:\n");
+    for (int i = 0; i < r1; i++) {
+        for (int j = 0; j < c1; j++) {
+            scanf("%d", &A[i][j]);
+        }
+    }
+
+    printf("Enter elements of Matrix B:\n");
+    for (int i = 0; i < r2; i++) {
+        for (int j = 0; j < c2; j++) {
+            scanf("%d", &B[i][j]);
+        }
+    }
+
+    // Multiply matrices
+    for (int i = 0; i < r1; i++) {
+        for (int j = 0; j < c2; j++) {
+            C[i][j] = 0;
+            for (int k = 0; k < c1; k++) {
+                C[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+
+    printf("Resultant Matrix:\n");
+    for (int i = 0; i < r1; i++) {
+        for (int j = 0; j < c2; j++) {
+            printf("%d ", C[i][j]);
+        }
+        printf("\n");
+    }
+
+    // Free memory
+    for (int i = 0; i < r1; i++) free(A[i]);
+    free(A);
+
+    for (int i = 0; i < r2; i++) free(B[i]);
+    free(B);
+
+    for (int i = 0; i < r1; i++) free(C[i]);
+    free(C);
+
+    return 0;
+}
+\end{lstlisting}
+
+\subsection*{2.3 Execution Output}
+\begin{lstlisting}[style=output]
+Enter rows and columns of Matrix A: 2 3
+Enter rows and columns of Matrix B: 3 2
+Enter elements of Matrix A:
+1 2 3
+4 5 6
+Enter elements of Matrix B:
+7 8
+9 1
+2 3
+Resultant Matrix:
+31 19 
+85 55 
+\end{lstlisting}
+
+\subsection*{2.4 Analysis}
+\begin{itemize}
+    \item \textbf{Time Complexity:} $\mathcal{O}(r_1 \cdot c_1 \cdot c_2)$. Matrix multiplication uses three nested loops where the outer two iterate over the rows ($r_1$) and columns ($c_2$) of the output matrix, and the innermost loop performs $c_1$ multiply-accumulate operations. For square matrices of size $n \times n$, this corresponds to standard $\mathcal{O}(n^3)$ time complexity.
+    \item \textbf{Space Complexity:} $\mathcal{O}(r_1 c_1 + r_2 c_2 + r_1 c_2)$ heap memory to store matrices $A$, $B$, and $C$. In addition, $\mathcal{O}(r_1 + r_2)$ pointers are allocated for the row index structures.
+    \item \textbf{Memory Management:} 2D arrays are implemented using an array of row pointers (\texttt{int**}). Each row is dynamically allocated and freed in reverse order before the row pointer table is released, guaranteeing complete deallocation without memory leakage.
+\end{itemize}
+
+\vspace{10pt}
+\hrule
+\vspace{10pt}
+
+% ==============================================================================
+% Problem 3: Vector Dot Product
+% ==============================================================================
+\section*{Problem 3: Dot Product of Two Vectors using Dynamic Memory Allocation}
+
+\subsection*{3.1 Objective}
+Compute the scalar dot product $\vec{a} \cdot \vec{b} = \sum_{i=0}^{n-1} a_i b_i$ of two vectors of user-specified size $n$ using dynamically allocated buffers.
+
+\subsection*{3.2 Source Code (\texttt{dot\_product.c})}
+\begin{lstlisting}[style=code]
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n;
+    printf("Enter size of vectors: ");
+    if (scanf("%d", &n) != 1 || n <= 0) {
+        printf("Invalid size\n");
+        return 1;
+    }
+
+    int *a = (int *)malloc(n * sizeof(int));
+    int *b = (int *)malloc(n * sizeof(int));
+
+    if (a == NULL || b == NULL) {
+        printf("Memory allocation failed\n");
+        return 1;
+    }
+
+    printf("Enter elements of first vector:\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &a[i]);
+    }
+
+    printf("Enter elements of second vector:\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &b[i]);
+    }
+
+    long long dot_product = 0;
+    for (int i = 0; i < n; i++) {
+        dot_product += (long long)a[i] * b[i];
+    }
+
+    printf("Dot Product: %lld\n", dot_product);
+
+    free(a);
+    free(b);
+    return 0;
+}
+\end{lstlisting}
+
+\subsection*{3.3 Execution Output}
+\begin{lstlisting}[style=output]
+Enter size of vectors: 3
+Enter elements of first vector:
+1 2 3
+Enter elements of second vector:
+4 5 6
+Dot Product: 32
+\end{lstlisting}
+
+\subsection*{3.4 Analysis}
+\begin{itemize}
+    \item \textbf{Time Complexity:} $\mathcal{O}(n)$. Reading the input vectors requires $2n$ operations and the linear accumulation loop requires $n$ multiplication and addition operations.
+    \item \textbf{Space Complexity:} $\mathcal{O}(n)$ dynamic memory for the two vectors ($2n \times \text{sizeof(int)}$ bytes). Auxiliary stack space is $\mathcal{O}(1)$.
+    \item \textbf{Numerical Robustness:} The dot product accumulator is declared as \texttt{long long} (64-bit integer) to prevent potential arithmetic overflow when accumulating products of large 32-bit integers.
+\end{itemize}
+
+\vspace{10pt}
+\hrule
+\vspace{10pt}
+
+% ==============================================================================
+% Problem 4: Divide and Conquer Sorting (Merge Sort)
+% ==============================================================================
+\section*{Problem 4: Array Sorting using Divide-and-Conquer (Merge Sort)}
+
+\subsection*{4.1 Objective}
+Implement the divide-and-conquer Merge Sort algorithm to sort an array of $n$ elements in non-decreasing order using dynamic memory allocation for the input array and merge buffers.
+
+\subsection*{4.2 Source Code (\texttt{merge\_sort.c})}
+\begin{lstlisting}[style=code]
+#include <stdio.h>
+#include <stdlib.h>
+
+void merge(int arr[], int l, int m, int r) {
+    int n1 = m - l + 1;
+    int n2 = r - m;
+
+    int *L = (int *)malloc(n1 * sizeof(int));
+    int *R = (int *)malloc(n2 * sizeof(int));
+
+    for (int i = 0; i < n1; i++) {
+        L[i] = arr[l + i];
+    }
+    for (int j = 0; j < n2; j++) {
+        R[j] = arr[m + 1 + j];
+    }
+
+    int i = 0, j = 0, k = l;
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            arr[k++] = L[i++];
+        } else {
+            arr[k++] = R[j++];
+        }
+    }
+
+    while (i < n1) {
+        arr[k++] = L[i++];
+    }
+    while (j < n2) {
+        arr[k++] = R[j++];
+    }
+
+    free(L);
+    free(R);
+}
+
+void mergeSort(int arr[], int l, int r) {
+    if (l < r) {
+        int m = l + (r - l) / 2;
+        mergeSort(arr, l, m);
+        mergeSort(arr, m + 1, r);
+        merge(arr, l, m, r);
+    }
+}
+
+int main() {
+    int n;
+    printf("Enter number of elements: ");
+    if (scanf("%d", &n) != 1 || n <= 0) {
+        printf("Invalid size\n");
+        return 1;
+    }
+
+    int *arr = (int *)malloc(n * sizeof(int));
+    if (arr == NULL) {
+        printf("Memory allocation failed\n");
+        return 1;
+    }
+
+    printf("Enter %d elements:\n", n);
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    mergeSort(arr, 0, n - 1);
+
+    printf("Sorted array:\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+
+    free(arr);
+    return 0;
+}
+\end{lstlisting}
+
+\subsection*{4.3 Execution Output}
+\begin{lstlisting}[style=output]
+Enter number of elements: 7
+Enter 7 elements:
+38 27 43 3 9 82 10
+Sorted array:
+3 9 10 27 38 43 82 
+\end{lstlisting}
+
+\subsection*{4.4 Analysis}
+\begin{itemize}
+    \item \textbf{Algorithmic Paradigm:} Divide-and-Conquer. The problem is partitioned recursively into two halves ($T(n/2)$), sorted, and merged in linear time ($\mathcal{O}(n)$).
+    \item \textbf{Recurrence Relation:} $T(n) = 2T(n/2) + \mathcal{O}(n)$, which yields a tight bound of $\Theta(n \log n)$ by the Master Theorem across best, average, and worst cases.
+    \item \textbf{Space Complexity:} $\mathcal{O}(n)$ auxiliary heap space allocated dynamically during the merge step for subarray buffers $L$ and $R$, alongside $\mathcal{O}(\log n)$ recursion stack depth.
+    \item \textbf{Stability:} Merge Sort is stable, meaning elements with equal keys maintain their relative original input order (achieved via \texttt{L[i] <= R[j]}).
+\end{itemize}
+
+\end{document}

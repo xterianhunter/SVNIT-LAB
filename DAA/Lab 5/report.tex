@@ -1,0 +1,560 @@
+\documentclass[12pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{newtxtext,newtxmath} % Times-style font
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+
+\setlength{\textfloatsep}{10pt}
+\setlength{\floatsep}{10pt}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+% Keep entire document at 12 pt
+\AtBeginDocument{
+    \fontsize{12pt}{14pt}\selectfont
+}
+
+\lstdefinestyle{code}{
+    language=Python,
+    basicstyle=\ttfamily\fontsize{10pt}{12pt}\selectfont,
+    breaklines=true,
+    breakatwhitespace=false,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{green!50!black},
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false
+}
+
+\lstdefinestyle{output}{
+    basicstyle=\ttfamily\fontsize{10pt}{12pt}\selectfont,
+    breaklines=true,
+    breakatwhitespace=false,
+    frame=single,
+    numbers=none,
+    backgroundcolor=\color{gray!4},
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false
+}
+
+% ------------------------------------------------
+% Header
+% ------------------------------------------------
+
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[L]{Name: Kishan Sahu{\hspace{4cm}}}
+\fancyhead[R]{Enrollment No.: P26DS017}
+
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headheight}{15pt}
+
+\begin{document}
+
+% ------------------------------------------------
+% TITLE
+% ------------------------------------------------
+
+\begin{center}
+\textbf{Computer Science and Engineering Department, SVNIT, Surat}\\
+\textbf{M.Tech. I -- Semester I}\\
+\textbf{Design and Analysis of Algorithm (CSDS103)}\\
+\textbf{Lab Assignment: Comprehensive Algorithmic Analysis}\\
+\textbf{Assignments 1 to 6}
+\end{center}
+\vspace{-4pt}
+\hrule
+\vspace{4pt}
+
+\vspace{0.3cm}
+
+\section{Introduction to Divide and Conquer}
+
+The \textbf{Divide and Conquer} paradigm is a fundamental algorithmic design technique based on multi-branched recursion. It breaks a complex problem into smaller, independent subproblems of the same type, solves them recursively, and subsequently combines their individual solutions to construct the solution to the original problem. The paradigm adheres to three canonical phases:
+\begin{enumerate}
+    \item \textbf{Divide:} Partition the input problem into two or more disjoint subproblems of smaller size.
+    \item \textbf{Conquer:} Solve the subproblems recursively. If the subproblem size is sufficiently small (the base case), solve it directly without further subdivision.
+    \item \textbf{Combine:} Merge the solutions of the subproblems into a unified global solution.
+\end{enumerate}
+
+In this laboratory report, we implement, benchmark, and analyze key algorithmic problems covering Divide and Conquer, data structures, high-resolution OS timing, selection order statistics, and loop complexity:
+\begin{itemize}
+    \item \textbf{Assignment 1 (2D Closest Pair of Points):} Divide and Conquer $O(n \log n)$ geometric partitioning contrasted with an $O(n^2)$ exhaustive Brute Force comparison.
+    \item \textbf{Assignments 2 \& 3 (Large Dataset \& Microsecond Timing):} Generating $10^6$ random positive integers, resolving duplicate collisions to nearest free values, and microsecond-level timing via monotonic Linux clocks.
+    \item \textbf{Assignment 4 (Order Statistics Selection):} Priority Queue (Heap) selection ($O(n \log k)$) versus Quicksort partition (Quickselect, expected $O(n)$) and full sorting ($O(n \log n)$).
+    \item \textbf{Assignment 5 (Cost of Execution \& Loop Analysis):} Empirical operation counts and wall-clock execution for four nested/iterative loop constructs compared with asymptotic models ($O(n^2), O(n), O(n^3), O(n \log n)$).
+    \item \textbf{Assignment 6 (Large Integer Multiplication):} Karatsuba divide-and-conquer multiplication ($O(n^{\log_2 3}) \approx O(n^{1.585})$) contrasted against conventional grade-school multiplication ($O(n^2)$).
+\end{itemize}
+
+\vspace{0.2cm}
+\hrule
+\vspace{0.3cm}
+
+% ------------------------------------------------
+% ASSIGNMENT 1
+% ------------------------------------------------
+\section{Assignment 1: Closest Pair of Points in a 2D Plane}
+
+\subsection{Problem Formulation and Theoretical Analysis}
+Given a set $P$ of $n$ points in a two-dimensional Euclidean plane, find two points $p_i, p_j \in P$ such that their Euclidean distance $d(p_i, p_j) = \sqrt{(x_i - x_j)^2 + (y_i - y_j)^2}$ is minimized.
+
+\textbf{1. Brute-Force Approach:} Computes the pairwise distance between every pair $(p_i, p_j)$ for $1 \le i < j \le n$. There are $\binom{n}{2} = \frac{n(n-1)}{2}$ pairs, giving a time complexity of $\Theta(n^2)$.
+
+\textbf{2. Divide and Conquer Approach:}
+\begin{enumerate}
+    \item \textbf{Pre-sorting:} Points are pre-sorted by $x$-coordinate ($P_x$) and $y$-coordinate ($P_y$) in $O(n \log n)$ time.
+    \item \textbf{Divide:} The points are partitioned by a vertical line $x = x_{\text{mid}}$ into left half $Q$ and right half $R$ of size $\lceil n/2 \rceil$ and $\lfloor n/2 \rfloor$.
+    \item \textbf{Conquer:} Recursively find the closest pair in $Q$ with minimum distance $\delta_L$ and in $R$ with minimum distance $\delta_R$. Let $\delta = \min(\delta_L, \delta_R)$.
+    \item \textbf{Combine:} Construct a vertical strip containing points whose $x$-coordinates are within $\delta$ of $x_{\text{mid}}$. For each point in the strip (sorted by $y$), we only need to inspect at most 7 subsequent points.
+\end{enumerate}
+The recurrence relation is $T(n) = 2T(n/2) + O(n)$, which resolves by the Master Theorem to $T(n) = \Theta(n \log n)$.
+
+\subsection{Implementation}
+\begin{lstlisting}[style=code]
+import math, time, random
+
+def dist(p1, p2):
+    return math.hypot(p1[0] - p2[0], p1[1] - p2[1])
+
+# 1. Brute Force O(n^2)
+def closest_brute_force(pts):
+    n = len(pts)
+    min_d, pair = float('inf'), None
+    for i in range(n):
+        for j in range(i + 1, n):
+            d = dist(pts[i], pts[j])
+            if d < min_d:
+                min_d, pair = d, (pts[i], pts[j])
+    return min_d, pair
+
+# 2. Divide and Conquer O(n log n)
+def closest_divide_conquer(pts):
+    px = sorted(pts, key=lambda p: p[0])
+    py = sorted(pts, key=lambda p: p[1])
+
+    def rec(px, py):
+        n = len(px)
+        if n <= 3:
+            return closest_brute_force(px)
+        mid = n // 2
+        mid_x = px[mid][0]
+        lx, rx = px[:mid], px[mid:]
+        set_lx = set(lx)
+        ly = [p for p in py if p in set_lx]
+        ry = [p for p in py if p not in set_lx]
+
+        d1, p1 = rec(lx, ly)
+        d2, p2 = rec(rx, ry)
+        d, pair = (d1, p1) if d1 < d2 else (d2, p2)
+
+        strip = [p for p in py if abs(p[0] - mid_x) < d]
+        for i in range(len(strip)):
+            for j in range(i + 1, min(i + 8, len(strip))):
+                sd = dist(strip[i], strip[j])
+                if sd < d:
+                    d, pair = sd, (strip[i], strip[j])
+        return d, pair
+
+    return rec(px, py)
+\end{lstlisting}
+
+\subsection{Empirical Results and Performance Comparison}
+Execution times were measured using the high-resolution timer across increasing point set sizes:
+
+\begin{table}[H]
+\centering
+\caption{Empirical Timing Comparison: 2D Closest Pair of Points}
+\vspace{4pt}
+\begin{tabular}{crrc}
+\toprule
+\textbf{Input Size ($N$)} & \textbf{Brute Force ($\mu$s)} & \textbf{Divide \& Conquer ($\mu$s)} & \textbf{Solutions Match} \\
+\midrule
+50  & 619.91    & 403.25  & True \\
+100 & 2,165.96  & 668.08  & True \\
+200 & 7,036.75  & 1,250.83 & True \\
+400 & 31,929.28 & 3,124.95 & True \\
+800 & 132,358.18& 7,665.49 & True \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Observation:} For $N = 800$, the Divide and Conquer algorithm executes in $7.67$~ms, whereas the Brute Force approach requires $132.36$~ms (a speedup of over \textbf{17.2$\times$}). As $N$ doubles, Brute Force runtime roughly quadruples ($O(n^2)$), while Divide and Conquer scales almost linearly ($O(n \log n)$).
+
+\vspace{0.3cm}
+\hrule
+\vspace{0.3cm}
+
+% ------------------------------------------------
+% ASSIGNMENT 2 & 3
+% ------------------------------------------------
+\section{Assignments 2 \& 3: Dataset Creation, Duplicate Resolution \& Microsecond Timing}
+
+\subsection{Problem Statement and Design}
+\begin{itemize}
+    \item \textbf{Dataset Creation:} Populate a dynamic vector with at least $1,000,000$ positive random integers (simulating POSIX `lrand48()` behavior).
+    \item \textbf{Duplicate Detection:} Detect and print the total count of duplicate elements: $\text{Duplicates} = N - |\text{Unique}(A)|$.
+    \item \textbf{Duplicate Resolution:} Reassign each duplicate value to its nearest free positive integral value (searching offsets $x \pm 1, x \pm 2, \dots$).
+    \item \textbf{High-Resolution Timing (Assignment 3):} Output execution times formatted in microseconds ($\mu$s) and analyze Linux timing facilities.
+\end{itemize}
+
+\subsection{High-Resolution Timing Discussion in Linux}
+Under Linux, three timing approaches provide varying degrees of precision:
+\begin{enumerate}
+    \item \textbf{CLI Utility (`/usr/bin/time -v`):} Provides macro-level elapsed wall-clock time, system/user CPU time, page faults, and peak resident memory.
+    \item \textbf{POSIX Monotonic Clocks (`clock\_gettime(CLOCK\_MONOTONIC)`):} Directly samples hardware timers (TSC register on x86) with nanosecond resolution. Unlike `CLOCK\_REALTIME`, it is strictly monotonic and unaffected by NTP server adjustments or system clock jumps.
+    \item \textbf{Python `time.perf_counter_ns()`:} Built upon the finest OS monotonic counter. Dividing elapsed nanoseconds by $1000.0$ yields true microsecond precision.
+\end{enumerate}
+
+\subsection{Implementation}
+\begin{lstlisting}[style=code]
+# High-Resolution Microsecond Timer
+def timer(func, *args, **kwargs):
+    t0 = time.perf_counter_ns()
+    res = func(*args, **kwargs)
+    t1 = time.perf_counter_ns()
+    return res, (t1 - t0) / 1000.0
+
+# 1. Populate vector with 1,000,000 positive integers
+def generate_dataset(n=1_000_000, max_val=1_500_000):
+    return [random.randint(1, max_val) for _ in range(n)]
+
+# 2. Duplicate detection and round-off to nearest free integer
+def resolve_duplicates(arr):
+    seen = set()
+    duplicates_count = 0
+    resolved = []
+    occupied = set(arr)
+    
+    for x in arr:
+        if x not in seen:
+            seen.add(x)
+            resolved.append(x)
+        else:
+            duplicates_count += 1
+            step = 1
+            while True:
+                c_up = x + step
+                if c_up not in occupied:
+                    occupied.add(c_up)
+                    resolved.append(c_up)
+                    break
+                c_down = x - step
+                if c_down > 0 and c_down not in occupied:
+                    occupied.add(c_down)
+                    resolved.append(c_down)
+                    break
+                step += 1
+    return duplicates_count, resolved
+\end{lstlisting}
+
+\subsection{Empirical Output}
+\begin{lstlisting}[style=output]
+Dataset Size: 1,000,000 positive integers
+Generation Time: 588,580.11 us (588.58 ms)
+Duplicates Found in 1M dataset: 270,475
+Duplicates in 50k sample: 806
+Resolution Time (50k sample): 20,190.63 us (20.19 ms)
+Remaining duplicates after resolution: 0
+\end{lstlisting}
+
+\vspace{0.3cm}
+\hrule
+\vspace{0.3cm}
+
+% ------------------------------------------------
+% ASSIGNMENT 4
+% ------------------------------------------------
+\section{Assignment 4: Finding the Element at Index $i$ in Sorted Order}
+
+\subsection{Algorithm Descriptions and Theoretical Comparison}
+Given an unsorted array $A$ of size $n$ and an index $i$ ($0 \le i < n$), find the element that would appear at index $i$ if $A$ were fully sorted:
+
+\begin{enumerate}
+    \item \textbf{Priority Queue (Heap Selection):}
+    \begin{itemize}
+        \item For $i < n/2$: Maintain a max-heap of size $i+1$ containing the smallest $i+1$ elements. Time complexity: $O(n \log (i+1))$.
+        \item For $i \ge n/2$: Maintain a min-heap of size $n-i$ containing the largest $n-i$ elements. Time complexity: $O(n \log (n-i))$.
+        \item \textit{Trade-off:} When $i \approx n/2$ (median), complexity reaches $O(n \log n)$.
+    \end{itemize}
+    \item \textbf{Quicksort Partition (Quickselect):} Partitions the array around a pivot element. If the pivot index $p = i$, the target is found. Otherwise, the algorithm recurses into only one partition half. Expected time complexity: $O(n)$, worst-case $O(n^2)$.
+    \item \textbf{Full Sorting Baseline:} Sort the entire array via Timsort in $O(n \log n)$ time and access $A[i]$ in $O(1)$.
+\end{enumerate}
+
+\subsection{Implementation}
+\begin{lstlisting}[style=code]
+import heapq
+
+# 1. Priority Queue Selection
+def select_heap(arr, i):
+    n = len(arr)
+    if i < n // 2:
+        return heapq.nsmallest(i + 1, arr)[-1]
+    else:
+        return heapq.nlargest(n - i, arr)[-1]
+
+# 2. Quickselect using Quicksort Partition Routine
+def quickselect(arr, i):
+    def partition(a, l, r):
+        pivot = a[r]
+        p = l
+        for j in range(l, r):
+            if a[j] <= pivot:
+                a[p], a[j] = a[j], a[p]
+                p += 1
+        a[p], a[r] = a[r], a[p]
+        return p
+
+    def select(a, l, r, k):
+        if l == r:
+            return a[l]
+        p = partition(a, l, r)
+        if k == p:
+            return a[p]
+        elif k < p:
+            return select(a, l, p - 1, k)
+        else:
+            return select(a, p + 1, r, k)
+
+    return select(arr.copy(), 0, len(arr) - 1, i)
+
+# 3. Full Sort Baseline
+def select_sort(arr, i):
+    return sorted(arr)[i]
+\end{lstlisting}
+
+\subsection{Empirical Comparison Across Index Locations}
+Testing on an unsorted array of size $N = 50,000$:
+
+\begin{table}[H]
+\centering
+\caption{Selection Time Comparison for $N = 50,000$ Across Different Target Indices $i$}
+\vspace{4pt}
+\begin{tabular}{crrrcc}
+\toprule
+\textbf{Target Index $i$} & \textbf{Heap ($\mu$s)} & \textbf{Quickselect ($\mu$s)} & \textbf{Sort ($\mu$s)} & \textbf{Fastest Method} & \textbf{All Match} \\
+\midrule
+0 (Min)         & 927.85    & 27,941.30 & 13,153.62 & Heap & True \\
+10              & 1,670.34  & 28,237.52 & 14,423.20 & Heap & True \\
+25,000 (Median) & 132,636.20& 29,368.93 & 12,444.46 & Sort & True \\
+49,989          & 1,512.62  & 12,418.63 & 13,670.59 & Heap & True \\
+49,999 (Max)    & 763.77    & 10,999.95 & 11,549.42 & Heap & True \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Analysis:} When $i$ is close to the extremes ($i=0, 10$ or $i \approx n-1$), the Priority Queue method is exceptionally fast ($< 1.7$~ms) because the heap size $k$ is small. However, for the median ($i = 25,000$), maintaining a heap of size $25,000$ incurs substantial overhead ($132.6$~ms), making Quickselect and full sorting significantly superior.
+
+\vspace{0.3cm}
+\hrule
+\vspace{0.3cm}
+
+% ------------------------------------------------
+% ASSIGNMENT 5
+% ------------------------------------------------
+\section{Assignment 5: Cost of Execution and Asymptotic Loop Analysis}
+
+\subsection{Analytical Complexity Derivations}
+We analyze the exact number of times statement $x = x + 1$ is executed:
+
+\textbf{(a) Code 1:}
+\begin{align*}
+    T_1(n) = \sum_{i=1}^n \sum_{j=1}^i 1 = \sum_{i=1}^n i = \frac{n(n+1)}{2} = \Theta(n^2)
+\end{align*}
+
+\textbf{(b) Code 2:}
+The question sheet writes `j = n/2;` inside `while (j >= 1)`. If executed literally with $n \ge 2$, $j$ remains unchanged at $n/2$ indefinitely, resulting in an infinite loop. The intended algorithmic formulation is logarithmic halving `j = j // 2`:
+\begin{align*}
+    T_2(n) = \sum_{k=0}^{\lfloor \log_2 n \rfloor} \left\lfloor \frac{n}{2^k} \right\rfloor \le n \sum_{k=0}^\infty \frac{1}{2^k} = 2n = \Theta(n)
+\end{align*}
+
+\textbf{(c) Code 3:}
+\begin{align*}
+    T_3(n) = \sum_{i=1}^n \sum_{j=1}^i \sum_{k=1}^i 1 = \sum_{i=1}^n i^2 = \frac{n(n+1)(2n+1)}{6} = \Theta(n^3)
+\end{align*}
+
+\textbf{(d) Code 4:} The outer loop divides $i$ by $2$ until $i < 1$ ($\lfloor \log_2 n \rfloor + 1$ iterations). The inner loop runs $n$ times per outer step:
+\begin{align*}
+    T_4(n) = (\lfloor \log_2 n \rfloor + 1) \times n = \Theta(n \log n)
+\end{align*}
+
+\subsection{Implementation}
+\begin{lstlisting}[style=code]
+def code1(n):
+    x = 0
+    for i in range(1, n + 1):
+        for j in range(1, i + 1):
+            x += 1
+    return x
+
+def code2(n):
+    x, j = 0, n
+    while j >= 1:
+        for i in range(1, j + 1):
+            x += 1
+        j = j // 2  # Intended logarithmic halving
+    return x
+
+def code3(n):
+    x = 0
+    for i in range(1, n + 1):
+        for j in range(1, i + 1):
+            for k in range(1, i + 1):
+                x += 1
+    return x
+
+def code4(n):
+    x, i = 0, n
+    while i >= 1:
+        for j in range(1, n + 1):
+            x += 1
+        i = i // 2
+    return x
+\end{lstlisting}
+
+\subsection{Empirical Step Counts and Timing Benchmarks}
+
+\begin{table}[H]
+\centering
+\caption{Exact Operation Counts vs. Theoretical Closed-Form Equations}
+\vspace{4pt}
+\begin{tabular}{crrrr}
+\toprule
+\textbf{Input ($n$)} & \textbf{Code 1: $n(n+1)/2$} & \textbf{Code 2: $\sum \lfloor n/2^k \rfloor$} & \textbf{Code 3: $n(n+1)(2n+1)/6$} & \textbf{Code 4: $(\lfloor\log_2 n\rfloor + 1)n$} \\
+\midrule
+10  & 55      & 18  & 385     & 40 \\
+50  & 1,275   & 97  & 42,925  & 300 \\
+100 & 5,050   & 197 & 338,350 & 700 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Empirical Execution Times ($\mu$s) for the Four Loop Snippets}
+\vspace{4pt}
+\begin{tabular}{crrrr}
+\toprule
+\textbf{Input ($n$)} & \textbf{Code 1 $O(n^2)$} & \textbf{Code 2 $O(n)$} & \textbf{Code 3 $O(n^3)$} & \textbf{Code 4 $O(n \log n)$} \\
+\midrule
+50  & 84.84    & 6.43  & 3,283.11   & 22.49 \\
+100 & 472.45   & 15.35 & 22,867.57  & 42.39 \\
+200 & 1,155.02 & 18.72 & 148,196.00 & 75.33 \\
+300 & 2,065.12 & 27.72 & 505,136.97 & 158.19 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.3cm}
+\hrule
+\vspace{0.3cm}
+
+% ------------------------------------------------
+% ASSIGNMENT 6
+% ------------------------------------------------
+\section{Assignment 6: Large Integer Multiplication (Karatsuba Algorithm)}
+
+\subsection{Theoretical Derivation and Divide-and-Conquer Recurrence}
+Given two large $n$-digit integers $X$ and $Y$, write them as:
+\begin{align*}
+    X = x_1 \cdot 10^m + x_0, \quad Y = y_1 \cdot 10^m + y_0 \quad \left(m = \lfloor n/2 \rfloor\right)
+\end{align*}
+Their full product is given by:
+\begin{align*}
+    X \cdot Y = x_1 y_1 \cdot 10^{2m} + (x_1 y_0 + x_0 y_1) \cdot 10^m + x_0 y_0
+\end{align*}
+\textbf{1. Conventional Multiplication:} Naively computing the 4 products ($x_1 y_1, x_1 y_0, x_0 y_1, x_0 y_0$) results in the recurrence $T(n) = 4T(n/2) + O(n) = O(n^2)$.
+
+\textbf{2. Karatsuba Algorithm:} Karatsuba cleverly computes only \textbf{3 multiplications}:
+\begin{align*}
+    z_0 &= x_0 \cdot y_0 \\
+    z_2 &= x_1 \cdot y_1 \\
+    z_1 &= (x_0 + x_1)(y_0 + y_1) - z_0 - z_2 = x_1 y_0 + x_0 y_1
+\end{align*}
+Then, $X \cdot Y = z_2 \cdot 10^{2m} + z_1 \cdot 10^m + z_0$.
+The recurrence relation becomes:
+\begin{align*}
+    T(n) = 3T(n/2) + O(n)
+\end{align*}
+By the Master Theorem ($a=3, b=2, d=1$), since $\log_2 3 \approx 1.585 > 1$, the overall time complexity is:
+\begin{align*}
+    T(n) = \Theta\left(n^{\log_2 3}\right) \approx \Theta\left(n^{1.585}\right)
+\end{align*}
+
+\subsection{Implementation}
+\begin{lstlisting}[style=code]
+# 1. Conventional Large Integer Multiplication O(n^2)
+def mult_conventional(x, y):
+    s_y = str(y)
+    total = 0
+    for i, digit in enumerate(reversed(s_y)):
+        total += (x * int(digit)) * (10 ** i)
+    return total
+
+# 2. Karatsuba Divide and Conquer Multiplication O(n^1.585)
+def karatsuba(x, y):
+    if x < 10 or y < 10:
+        return x * y
+    n = max(len(str(x)), len(str(y)))
+    if n <= 16:
+        return x * y
+    m = n // 2
+    p = 10 ** m
+    x1, x0 = divmod(x, p)
+    y1, y0 = divmod(y, p)
+    z0 = karatsuba(x0, y0)
+    z2 = karatsuba(x1, y1)
+    z1 = karatsuba(x0 + x1, y0 + y1) - z0 - z2
+    return z2 * (10 ** (2 * m)) + z1 * p + z0
+\end{lstlisting}
+
+\subsection{Empirical Scaling Benchmark}
+
+\begin{table}[H]
+\centering
+\caption{Empirical Multiplication Performance Across Increasing Digit Lengths}
+\vspace{4pt}
+\begin{tabular}{crrcc}
+\toprule
+\textbf{Digit Length ($d$)} & \textbf{Conventional ($\mu$s)} & \textbf{Karatsuba ($\mu$s)} & \textbf{Empirical Speedup} & \textbf{Matches $X \times Y$} \\
+\midrule
+32   & 46.43     & 21.12    & 2.20$\times$ & True \\
+64   & 75.30     & 81.21    & 0.93$\times$ & True \\
+128  & 167.84    & 113.15   & 1.48$\times$ & True \\
+256  & 611.74    & 302.27   & 2.02$\times$ & True \\
+512  & 2,279.90  & 970.40   & 2.35$\times$ & True \\
+1,024& 15,247.29 & 2,985.25 & \textbf{5.11$\times$} & True \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Discussion:} At $d=64$ digits, recursion overhead is comparable to grade-school multiplication. However, as $d$ scales to $1,024$ digits, conventional multiplication time increases dramatically due to $O(n^2)$ growth ($15.25$~ms), whereas Karatsuba scales at $O(n^{1.585})$ ($2.99$~ms), achieving a \textbf{5.11$\times$ speedup}.
+
+\vspace{0.3cm}
+\hrule
+\vspace{0.3cm}
+
+\section{Conclusion}
+Through theoretical analysis and empirical benchmarking of assignments 1 through 6, we demonstrated:
+\begin{enumerate}
+    \item \textbf{Divide and Conquer Efficiency:} For both 2D Closest Pair ($O(n \log n)$ vs $O(n^2)$) and Karatsuba integer multiplication ($O(n^{1.585})$ vs $O(n^2)$), multi-branch recursion significantly outperforms naive algorithms as problem size grows.
+    \item \textbf{Trade-offs in Selection:} Priority queue selection is optimal for finding boundary elements ($i \approx 0$ or $i \approx n-1$), while Quickselect and sorting prevail for median order statistics.
+    \item \textbf{Precision Timing:} Python monotonic timers provide sub-microsecond resolution, verifying asymptotic complexity models empirically.
+\end{enumerate}
+
+\end{document}
